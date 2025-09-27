@@ -6,6 +6,8 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import server.Heeyoung.domain.Store.entity.Store;
+import server.Heeyoung.domain.User.entity.User;
 
 @Entity
 @Getter
@@ -27,19 +29,21 @@ public class Order {
     private String request;
 
     // FK
-    @Column(nullable = false, name = "user_id")
-    private Long userId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(nullable = false, name = "user_id")
+    private User user;
 
-    @Column(nullable = false, name = "store_id")
-    private Long storeId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(nullable = false, name = "store_id")
+    private Store store;
 
     @Builder
-    private Order(Long id, String paymentMethod, Long totalPrice, String request, Long userId, Long storeId) {
+    private Order(Long id, String paymentMethod, Long totalPrice, String request,  User user, Store store) {
         this.id = id;
         this.paymentMethod = paymentMethod;
         this.totalPrice = totalPrice;
         this.request = request;
-        this.userId = userId;
-        this.storeId = storeId;
+        this.user = user;
+        this.store = store;
     }
 }

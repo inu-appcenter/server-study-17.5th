@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.w3c.dom.Text;
+import server.Heeyoung.domain.Store.entity.Store;
 
 import java.awt.*;
 
@@ -29,15 +30,16 @@ public class Menu {
     private String menuPicture;
 
     // FK
-    @Column(nullable = false, name = "store_id")
-    private Long storeId;
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(nullable = false, name = "store_id")
+    private Store store;
 
     @Builder
-    private Menu(Long id, String menuName, Long price, String menuPicture, Long storeId) {
+    private Menu(Long id, String menuName, Long price, String menuPicture,  Store store) {
         this.id = id;
         this.menuName = menuName;
         this.price = price;
         this.menuPicture = menuPicture;
-        this.storeId = storeId;
+        this.store = store;
     }
 }

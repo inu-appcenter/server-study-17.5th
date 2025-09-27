@@ -5,6 +5,8 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import server.Heeyoung.domain.Store.entity.Store;
+import server.Heeyoung.domain.User.entity.User;
 
 @Entity
 @Getter
@@ -17,16 +19,18 @@ public class Cart {
     private Long id;
 
     // FK
-    @Column(nullable = false, name = "store_id")
-    private Long storeId;
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(nullable = false, name = "store_id")
+    private Store store;
 
-    @Column(nullable = false, name = "user_id")
-    private Long userId;
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(nullable = false, name = "user_id")
+    private User user;
 
     @Builder
-    private Cart(Long id, Long storeId, Long userId) {
+    private Cart(Long id, Store store, User user) {
         this.id = id;
-        this.storeId = storeId;
-        this.userId = userId;
+        this.store = store;
+        this.user = user;
     }
 }

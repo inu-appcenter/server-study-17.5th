@@ -5,6 +5,8 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import server.Heeyoung.domain.Cart.entity.Cart;
+import server.Heeyoung.domain.Menu.entity.Menu;
 
 @Entity
 @Getter
@@ -20,17 +22,19 @@ public class CartMenu {
     private Long cartMenuQuantity;
 
     // FK
-    @Column(nullable = false, name = "menu_id")
-    private Long menuId;
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(nullable = false, name = "menu_id")
+    private Menu menu;
 
-    @Column(nullable = false, name = "cart_id")
-    private Long cartId;
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(nullable = false, name = "cart_id")
+    private Cart cart;
 
     @Builder
-    private CartMenu(Long id, Long cartMenuQuantity,  Long menuId, Long cartId) {
+    private CartMenu(Long id, Long cartMenuQuantity, Menu menu, Cart cart) {
         this.id = id;
         this.cartMenuQuantity = cartMenuQuantity;
-        this.menuId = menuId;
-        this.cartId = cartId;
+        this.menu = menu;
+        this.cart = cart;
     }
 }
