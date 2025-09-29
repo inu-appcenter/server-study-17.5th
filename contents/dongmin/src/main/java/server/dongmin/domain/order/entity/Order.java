@@ -4,8 +4,8 @@ import jakarta.persistence.*;
 import lombok.*;
 import server.dongmin.domain.store.entity.Store;
 import server.dongmin.domain.user.entity.User;
+import server.dongmin.global.BaseTimeEntity;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Table(name = "orders")
@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder(access = AccessLevel.PRIVATE)
-public class Order {
+public class Order extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -29,7 +29,7 @@ public class Order {
     private Store store;
 
     @Column(nullable = false)
-    private BigDecimal totalPrice;
+    private long totalPrice;
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
@@ -45,13 +45,7 @@ public class Order {
     @Column
     private LocalDateTime deliveredAt;
 
-    @Column(nullable = false)
-    private LocalDateTime createdAt;
-
-    @Column(nullable = false)
-    private LocalDateTime modifiedAt;
-
-    public static Order create(User user, Store store, BigDecimal totalPrice,
+    public static Order create(User user, Store store, long totalPrice,
                                PaymentMethod paymentMethod, String request) {
         return Order.builder()
                 .user(user)
@@ -60,8 +54,10 @@ public class Order {
                 .paymentMethod(paymentMethod)
                 .request(request)
                 .status(OrderStatus.Pending)
-                .createdAt(LocalDateTime.now())
-                .modifiedAt(LocalDateTime.now())
                 .build();
+    }
+
+    public void completeDelivery(LocalDateTime deliveredAt) {
+        this.deliveredAt = deliveredAt;
     }
 }

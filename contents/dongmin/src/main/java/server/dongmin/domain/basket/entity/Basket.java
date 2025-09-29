@@ -4,10 +4,8 @@ import jakarta.persistence.*;
 import lombok.*;
 import server.dongmin.domain.menu.entity.Menu;
 import server.dongmin.domain.order.entity.Order;
-import server.dongmin.domain.store.entity.Store;
 import server.dongmin.domain.user.entity.User;
-
-import java.time.LocalDateTime;
+import server.dongmin.global.BaseTimeEntity;
 
 @Table(name = "basket")
 @Entity
@@ -15,7 +13,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder(access = AccessLevel.PRIVATE)
-public class Basket {
+public class Basket extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,10 +24,6 @@ public class Basket {
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "store_id", nullable = false)
-    private Store store;
-
-    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "menu_id", nullable = false)
     private Menu menu;
 
@@ -38,22 +32,13 @@ public class Basket {
     private Order order;
 
     @Column(nullable = false)
-    private Integer quantity;
+    private int quantity;
 
-    @Column(nullable = false)
-    private LocalDateTime createdAt;
-
-    @Column(nullable = false)
-    private LocalDateTime modifiedAt;
-
-    public static Basket create(User user, Store store, Menu menu, Integer quantity) {
+    public static Basket create(User user, Menu menu, int quantity) {
         return Basket.builder()
                 .user(user)
-                .store(store)
                 .menu(menu)
                 .quantity(quantity)
-                .createdAt(LocalDateTime.now())
-                .modifiedAt(LocalDateTime.now())
                 .build();
     }
 

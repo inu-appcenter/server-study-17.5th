@@ -2,8 +2,7 @@ package server.dongmin.domain.user.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-
-import java.time.LocalDateTime;
+import server.dongmin.global.BaseTimeEntity;
 
 @Table(name = "user")
 @Entity
@@ -11,7 +10,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder(access = AccessLevel.PRIVATE)
-public class User {
+public class User extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -33,7 +32,7 @@ public class User {
     private String phoneNumber;
 
     @Column(nullable = false)
-    private Integer age;
+    private int age;
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
@@ -44,13 +43,10 @@ public class User {
     private Grade grade;
 
     @Column(nullable = false)
-    private LocalDateTime createdAt;
-
-    @Column(nullable = false)
-    private LocalDateTime modifiedAt;
+    private String address;
 
     public static User create(String userName, String password, String email, String nickName,
-                              String phoneNumber, Integer age, Gender gender) {
+                              String phoneNumber, int age, Gender gender, String address) {
         return User.builder()
                 .userName(userName)
                 .password(password)
@@ -60,8 +56,7 @@ public class User {
                 .age(age)
                 .gender(gender)
                 .grade(Grade.Bronze)
-                .createdAt(LocalDateTime.now())
-                .modifiedAt(LocalDateTime.now())
+                .address(address)
                 .build();
     }
 }

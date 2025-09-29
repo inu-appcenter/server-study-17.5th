@@ -2,9 +2,9 @@ package server.dongmin.domain.store.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import server.dongmin.global.BaseTimeEntity;
 
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 @Table(name = "store")
 @Entity
@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder(access = AccessLevel.PRIVATE)
-public class Store {
+public class Store extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -31,23 +31,21 @@ public class Store {
     private String address;
 
     @Column(nullable = false)
-    private BigDecimal minDeliveryPrice;
+    private long minDeliveryPrice;
 
     @Column(nullable = false)
-    private BigDecimal deliveryTip;
+    private long deliveryTip;
 
     @Column(nullable = false)
-    private String businessHours;
+    private LocalTime openBusinessHours;
 
     @Column(nullable = false)
-    private LocalDateTime createdAt;
+    private LocalTime closeBusinessHours;
 
-    @Column(nullable = false)
-    private LocalDateTime modifiedAt;
 
     public static Store create(String storeName, String category, String content,
-                               String address, BigDecimal minDeliveryPrice, BigDecimal deliveryTip,
-                               String businessHours) {
+                               String address, long minDeliveryPrice, long deliveryTip,
+                               LocalTime openBusinessHours, LocalTime closeBusinessHours) {
         return Store.builder()
                 .storeName(storeName)
                 .category(category)
@@ -55,9 +53,8 @@ public class Store {
                 .address(address)
                 .minDeliveryPrice(minDeliveryPrice)
                 .deliveryTip(deliveryTip)
-                .businessHours(businessHours)
-                .createdAt(LocalDateTime.now())
-                .modifiedAt(LocalDateTime.now())
+                .openBusinessHours(openBusinessHours)
+                .closeBusinessHours(closeBusinessHours)
                 .build();
     }
 }

@@ -3,9 +3,7 @@ package server.dongmin.domain.menu.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import server.dongmin.domain.store.entity.Store;
-
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import server.dongmin.global.BaseTimeEntity;
 
 @Table(name = "menu")
 @Entity
@@ -13,7 +11,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder(access = AccessLevel.PRIVATE)
-public class Menu {
+public class Menu extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -27,7 +25,7 @@ public class Menu {
     private String menuName;
 
     @Column(nullable = false)
-    private BigDecimal price;
+    private long price;
 
     @Column
     private String content;
@@ -35,21 +33,13 @@ public class Menu {
     @Column
     private String category;
 
-    @Column(nullable = false)
-    private LocalDateTime createdAt;
-
-    @Column(nullable = false)
-    private LocalDateTime modifiedAt;
-
-    public static Menu create(Store store, String menuName, BigDecimal price, String content, String category) {
+    public static Menu create(Store store, String menuName, long price, String content, String category) {
         return Menu.builder()
                 .store(store)
                 .menuName(menuName)
                 .price(price)
                 .content(content)
                 .category(category)
-                .createdAt(LocalDateTime.now())
-                .modifiedAt(LocalDateTime.now())
                 .build();
     }
 }
