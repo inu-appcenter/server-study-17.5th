@@ -5,6 +5,9 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import server.Heeyoung.domain.Order.entity.Order;
+
+import java.util.List;
 
 @Entity
 @Getter
@@ -37,6 +40,9 @@ public class User {
     @Column(nullable = false)
     private String name;
 
+    @OneToMany(mappedBy = "user")
+    private List<Order> orders;
+
     @Builder
     private User(String loginId, String password, String email, String phoneNum, String address, String nickname, String name) {
         this.loginId = loginId;
@@ -47,4 +53,6 @@ public class User {
         this.nickname = nickname;
         this.name = name;
     }
+
+
 }

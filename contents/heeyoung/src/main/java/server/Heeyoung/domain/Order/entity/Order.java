@@ -6,8 +6,11 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import server.Heeyoung.domain.OrderDetail.entity.OrderDetail;
 import server.Heeyoung.domain.Store.entity.Store;
 import server.Heeyoung.domain.User.entity.User;
+
+import java.util.List;
 
 @Entity
 @Getter
@@ -27,6 +30,9 @@ public class Order {
     private Long totalPrice;
 
     private String request;
+
+    @OneToMany(mappedBy = "order")
+    private List<OrderDetail> orderDetails;
 
     // FK
     @ManyToOne(fetch = FetchType.LAZY)
