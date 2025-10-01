@@ -28,8 +28,7 @@ public class Cart {
     private User user;
 
     @Builder
-    private Cart(Long id, Store store, User user) {
-        this.id = id;
+    private Cart(Store store, User user) {
         this.store = store;
         this.user = user;
     }

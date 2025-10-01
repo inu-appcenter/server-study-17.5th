@@ -12,6 +12,7 @@ import server.Heeyoung.domain.User.entity.User;
 
 import java.util.List;
 
+@Table(name = "orders")
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -44,8 +45,7 @@ public class Order {
     private Store store;
 
     @Builder
-    private Order(Long id, String paymentMethod, Long totalPrice, String request,  User user, Store store) {
-        this.id = id;
+    private Order(String paymentMethod, Long totalPrice, String request,  User user, Store store) {
         this.paymentMethod = paymentMethod;
         this.totalPrice = totalPrice;
         this.request = request;

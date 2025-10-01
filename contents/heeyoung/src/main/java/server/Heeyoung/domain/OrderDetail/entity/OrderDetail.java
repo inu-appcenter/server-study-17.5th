@@ -19,9 +19,9 @@ public class OrderDetail {
     private Long id;
 
     @Column(nullable = false, name = "orderdetail_quantity")
-    private String orderDetailQuantity;
+    private Integer orderDetailQuantity;
 
-    @Column(nullable = false, name = "orderDetail_price")
+    @Column(nullable = false, name = "orderdetail_price")
     private Long orderDetailPrice;
 
     // FK
@@ -34,8 +34,7 @@ public class OrderDetail {
     private Order order;
 
     @Builder
-    private OrderDetail(Long id, String  orderDetailQuantity, Long orderDetailPrice, Menu menu, Order order) {
-        this.id = id;
+    private OrderDetail(Integer orderDetailQuantity, Long orderDetailPrice, Menu menu, Order order) {
         this.orderDetailQuantity = orderDetailQuantity;
         this.orderDetailPrice = orderDetailPrice;
         this.menu = menu;

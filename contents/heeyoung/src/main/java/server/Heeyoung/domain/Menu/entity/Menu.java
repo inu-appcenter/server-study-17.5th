@@ -35,8 +35,7 @@ public class Menu {
     private Store store;
 
     @Builder
-    private Menu(Long id, String menuName, Long price, String menuPicture,  Store store) {
-        this.id = id;
+    private Menu(String menuName, Long price, String menuPicture,  Store store) {
         this.menuName = menuName;
         this.price = price;
         this.menuPicture = menuPicture;

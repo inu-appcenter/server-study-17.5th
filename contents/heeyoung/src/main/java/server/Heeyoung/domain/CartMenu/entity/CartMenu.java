@@ -31,8 +31,7 @@ public class CartMenu {
     private Cart cart;
 
     @Builder
-    private CartMenu(Long id, Long cartMenuQuantity, Menu menu, Cart cart) {
-        this.id = id;
+    private CartMenu(Long cartMenuQuantity, Menu menu, Cart cart) {
         this.cartMenuQuantity = cartMenuQuantity;
         this.menu = menu;
         this.cart = cart;
