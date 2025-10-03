@@ -1,5 +1,8 @@
 package server.dongmin.domain.order.repository;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import server.dongmin.domain.order.entity.Order;
 import server.dongmin.domain.order.entity.OrderStatus;
@@ -19,5 +22,9 @@ public interface OrderRepository extends JpaRepository<Order,Long> {
     List<Order> findByUserAndStatusOrderByCreatedAtDesc(User user, OrderStatus status);
 
     List<Order> findByStore(Store store);
+
+
+    @EntityGraph(attributePaths = {"user"})
+    Page<Order> findByStatus(OrderStatus status, Pageable pageable);
 
 }

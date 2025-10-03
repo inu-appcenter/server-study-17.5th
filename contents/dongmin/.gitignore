@@ -38,4 +38,3 @@ out/
 
 # Sensitive information
 application.yml
-application-prod.yml

@@ -6,6 +6,7 @@ import server.dongmin.domain.store.entity.Store;
 import server.dongmin.domain.user.entity.User;
 import server.dongmin.global.BaseTimeEntity;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Table(name = "orders")
@@ -29,7 +30,7 @@ public class Order extends BaseTimeEntity {
     private Store store;
 
     @Column(nullable = false)
-    private long totalPrice;
+    private BigDecimal totalPrice;
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
@@ -45,7 +46,7 @@ public class Order extends BaseTimeEntity {
     @Column
     private LocalDateTime deliveredAt;
 
-    public static Order create(User user, Store store, long totalPrice,
+    public static Order create(User user, Store store, BigDecimal totalPrice,
                                PaymentMethod paymentMethod, String request) {
         return Order.builder()
                 .user(user)
@@ -58,6 +59,7 @@ public class Order extends BaseTimeEntity {
     }
 
     public void completeDelivery(LocalDateTime deliveredAt) {
+        this.status = OrderStatus.Delivered;
         this.deliveredAt = deliveredAt;
     }
 }

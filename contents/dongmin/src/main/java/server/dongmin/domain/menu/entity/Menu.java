@@ -5,6 +5,8 @@ import lombok.*;
 import server.dongmin.domain.store.entity.Store;
 import server.dongmin.global.BaseTimeEntity;
 
+import java.math.BigDecimal;
+
 @Table(name = "menu")
 @Entity
 @Getter
@@ -25,7 +27,7 @@ public class Menu extends BaseTimeEntity {
     private String menuName;
 
     @Column(nullable = false)
-    private long price;
+    private BigDecimal price;
 
     @Column
     private String content;
@@ -33,7 +35,7 @@ public class Menu extends BaseTimeEntity {
     @Column
     private String category;
 
-    public static Menu create(Store store, String menuName, long price, String content, String category) {
+    public static Menu create(Store store, String menuName, BigDecimal price, String content, String category) {
         return Menu.builder()
                 .store(store)
                 .menuName(menuName)

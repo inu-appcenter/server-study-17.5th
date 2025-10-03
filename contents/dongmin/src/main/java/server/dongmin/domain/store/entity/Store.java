@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import server.dongmin.global.BaseTimeEntity;
 
+import java.math.BigDecimal;
 import java.time.LocalTime;
 
 @Table(name = "store")
@@ -22,7 +23,8 @@ public class Store extends BaseTimeEntity {
     private String storeName;
 
     @Column(nullable = false)
-    private String category;
+    @Enumerated(EnumType.STRING)
+    private StoreCategory category;
 
     @Column
     private String content;
@@ -31,10 +33,10 @@ public class Store extends BaseTimeEntity {
     private String address;
 
     @Column(nullable = false)
-    private long minDeliveryPrice;
+    private BigDecimal minDeliveryPrice;
 
     @Column(nullable = false)
-    private long deliveryTip;
+    private BigDecimal deliveryTip;
 
     @Column(nullable = false)
     private LocalTime openBusinessHours;
@@ -42,9 +44,8 @@ public class Store extends BaseTimeEntity {
     @Column(nullable = false)
     private LocalTime closeBusinessHours;
 
-
-    public static Store create(String storeName, String category, String content,
-                               String address, long minDeliveryPrice, long deliveryTip,
+    public static Store create(String storeName, StoreCategory category, String content,
+                               String address, BigDecimal minDeliveryPrice, BigDecimal deliveryTip,
                                LocalTime openBusinessHours, LocalTime closeBusinessHours) {
         return Store.builder()
                 .storeName(storeName)
