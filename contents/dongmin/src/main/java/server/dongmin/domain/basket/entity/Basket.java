@@ -2,8 +2,6 @@ package server.dongmin.domain.basket.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import server.dongmin.domain.store.entity.Store;
-import server.dongmin.domain.user.entity.User;
 import server.dongmin.global.BaseTimeEntity;
 
 @Table(name = "basket")
@@ -18,18 +16,20 @@ public class Basket extends BaseTimeEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long basketId;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false, unique = true)
-    private User user;
+    @Column(name = "user_id", nullable = false, unique = true)
+    private Long userId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "store_id", nullable = false)
-    private Store store;
+    @Column(name = "store_id", nullable = false)
+    private Long storeId;
 
-    public static Basket create(User user, Store store) {
+    public void updateStore(Long storeId) {
+        this.storeId = storeId;
+    }
+
+    public static Basket create(Long userId, Long storeId) {
         return Basket.builder()
-                .user(user)
-                .store(store)
+                .userId(userId)
+                .storeId(storeId)
                 .build();
     }
 }

@@ -2,6 +2,8 @@ package server.dongmin.domain.store.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import server.dongmin.domain.store.dto.req.StoreRequest;
+import server.dongmin.domain.store.enums.StoreCategory;
 import server.dongmin.global.BaseTimeEntity;
 
 import java.math.BigDecimal;
@@ -18,6 +20,9 @@ public class Store extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long storeId;
+
+    @Column(nullable = false)
+    private Long userId;
 
     @Column(nullable = false)
     private String storeName;
@@ -44,18 +49,17 @@ public class Store extends BaseTimeEntity {
     @Column(nullable = false)
     private LocalTime closeBusinessHours;
 
-    public static Store create(String storeName, StoreCategory category, String content,
-                               String address, BigDecimal minDeliveryPrice, BigDecimal deliveryTip,
-                               LocalTime openBusinessHours, LocalTime closeBusinessHours) {
+    public static Store create(Long userId, StoreRequest storeRequest) {
         return Store.builder()
-                .storeName(storeName)
-                .category(category)
-                .content(content)
-                .address(address)
-                .minDeliveryPrice(minDeliveryPrice)
-                .deliveryTip(deliveryTip)
-                .openBusinessHours(openBusinessHours)
-                .closeBusinessHours(closeBusinessHours)
+                .userId(userId)
+                .storeName(storeRequest.getStoreName())
+                .category(storeRequest.getCategory())
+                .content(storeRequest.getContent())
+                .address(storeRequest.getAddress())
+                .minDeliveryPrice(storeRequest.getMinDeliveryPrice())
+                .deliveryTip(storeRequest.getDeliveryTip())
+                .openBusinessHours(storeRequest.getOpenBusinessHours())
+                .closeBusinessHours(storeRequest.getCloseBusinessHours())
                 .build();
     }
 }

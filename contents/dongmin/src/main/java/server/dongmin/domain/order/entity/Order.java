@@ -2,8 +2,8 @@ package server.dongmin.domain.order.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import server.dongmin.domain.store.entity.Store;
-import server.dongmin.domain.user.entity.User;
+import server.dongmin.domain.order.enums.OrderStatus;
+import server.dongmin.domain.order.enums.PaymentMethod;
 import server.dongmin.global.BaseTimeEntity;
 
 import java.math.BigDecimal;
@@ -21,13 +21,11 @@ public class Order extends BaseTimeEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long orderId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    @Column(name = "user_id", nullable = false)
+    private Long userId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "store_id", nullable = false)
-    private Store store;
+    @Column(name = "store_id", nullable = false)
+    private Long storeId;
 
     @Column(nullable = false)
     private BigDecimal totalPrice;
@@ -46,11 +44,11 @@ public class Order extends BaseTimeEntity {
     @Column
     private LocalDateTime deliveredAt;
 
-    public static Order create(User user, Store store, BigDecimal totalPrice,
+    public static Order create(Long userId, Long storeId, BigDecimal totalPrice,
                                PaymentMethod paymentMethod, String request) {
         return Order.builder()
-                .user(user)
-                .store(store)
+                .userId(userId)
+                .storeId(storeId)
                 .totalPrice(totalPrice)
                 .paymentMethod(paymentMethod)
                 .request(request)

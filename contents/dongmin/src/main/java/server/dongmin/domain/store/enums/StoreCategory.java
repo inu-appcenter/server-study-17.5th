@@ -1,10 +1,10 @@
-package server.dongmin.domain.store.entity;
+package server.dongmin.domain.store.enums;
 
 public enum StoreCategory {
 
     ChineseFood,
     JapaneseFood,
-    CafeAndDesert,
+    CoffeeAndDessert,
     KoreanFood,
     FastFood
 }

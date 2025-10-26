@@ -1,4 +1,4 @@
-package server.dongmin.domain.user.entity;
+package server.dongmin.domain.user.enums;
 
 public enum Grade {
 

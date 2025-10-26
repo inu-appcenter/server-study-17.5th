@@ -1,4 +1,4 @@
-package server.dongmin.domain.order.entity;
+package server.dongmin.domain.order.enums;
 
 public enum PaymentMethod {
 

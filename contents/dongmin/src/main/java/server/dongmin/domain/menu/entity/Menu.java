@@ -2,7 +2,7 @@ package server.dongmin.domain.menu.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import server.dongmin.domain.store.entity.Store;
+import server.dongmin.domain.menu.dto.req.MenuRequest;
 import server.dongmin.global.BaseTimeEntity;
 
 import java.math.BigDecimal;
@@ -19,9 +19,8 @@ public class Menu extends BaseTimeEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long menuId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "store_id", nullable = false)
-    private Store store;
+    @Column(name = "store_id", nullable = false)
+    private Long storeId;
 
     @Column(nullable = false)
     private String menuName;
@@ -35,13 +34,13 @@ public class Menu extends BaseTimeEntity {
     @Column
     private String category;
 
-    public static Menu create(Store store, String menuName, BigDecimal price, String content, String category) {
+    public static Menu create(Long storeId, MenuRequest menuRequest) {
         return Menu.builder()
-                .store(store)
-                .menuName(menuName)
-                .price(price)
-                .content(content)
-                .category(category)
+                .storeId(storeId)
+                .menuName(menuRequest.getMenuName())
+                .price(menuRequest.getPrice())
+                .content(menuRequest.getContent())
+                .category(menuRequest.getCategory())
                 .build();
     }
 }
