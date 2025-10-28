@@ -1,16 +1,15 @@
 package server.Heeyoung.domain.User.entity;
 
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import server.Heeyoung.domain.Cart.entity.Cart;
 import server.Heeyoung.domain.Order.entity.Order;
 
 import java.util.List;
 
 @Entity
 @Getter
+@Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class User {
 
@@ -42,6 +41,9 @@ public class User {
 
     @OneToMany(mappedBy = "user")
     private List<Order> orders;
+
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Cart cart;
 
     @Builder
     private User(String loginId, String password, String email, String phoneNum, String address, String nickname, String name) {

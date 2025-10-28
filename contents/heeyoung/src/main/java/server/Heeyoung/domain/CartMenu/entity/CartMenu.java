@@ -1,15 +1,13 @@
 package server.Heeyoung.domain.CartMenu.entity;
 
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import server.Heeyoung.domain.Cart.entity.Cart;
 import server.Heeyoung.domain.Menu.entity.Menu;
 
 @Entity
 @Getter
+@Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class CartMenu {
 
@@ -35,5 +33,9 @@ public class CartMenu {
         this.cartMenuQuantity = cartMenuQuantity;
         this.menu = menu;
         this.cart = cart;
+    }
+
+    public void updateQuantity(Long newQuantity) {
+        this.cartMenuQuantity = newQuantity;
     }
 }

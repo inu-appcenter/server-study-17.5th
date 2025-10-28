@@ -1,10 +1,7 @@
 package server.Heeyoung.domain.Menu.entity;
 
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.w3c.dom.Text;
 import server.Heeyoung.domain.Store.entity.Store;
 
@@ -12,6 +9,7 @@ import java.awt.*;
 
 @Entity
 @Getter
+@Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Menu {
 
@@ -30,12 +28,12 @@ public class Menu {
     private String menuPicture;
 
     // FK
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(nullable = false, name = "store_id")
     private Store store;
 
     @Builder
-    private Menu(String menuName, Long price, String menuPicture,  Store store) {
+    private Menu(String menuName, Long price, String menuPicture, Store store) {
         this.menuName = menuName;
         this.price = price;
         this.menuPicture = menuPicture;
