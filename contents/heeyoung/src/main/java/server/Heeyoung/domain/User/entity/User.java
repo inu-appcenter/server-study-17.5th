@@ -9,7 +9,6 @@ import java.util.List;
 
 @Entity
 @Getter
-@Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class User {
 
@@ -18,7 +17,7 @@ public class User {
     @Column(name = "user_id")
     private Long id;
 
-    @Column(unique = true, nullable = false, name = "login_id")
+    @Column(unique = true, nullable = false)
     private String loginId;
 
     @Column(nullable = false)
@@ -27,7 +26,7 @@ public class User {
     @Column(nullable = false, unique = true)
     private String email;
 
-    @Column(nullable = false, name = "phone_num")
+    @Column(nullable = false)
     private String phoneNum;
 
     @Column(nullable = false)
@@ -56,5 +55,7 @@ public class User {
         this.name = name;
     }
 
-
+    public void clearCart() {
+        this.cart = null;
+    }
 }

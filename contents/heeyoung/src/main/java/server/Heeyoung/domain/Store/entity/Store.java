@@ -20,16 +20,16 @@ public class Store {
     @Column(name = "store_id")
     private Long id;
 
-    @Column(nullable = false, name = "store_name")
+    @Column(nullable = false)
     private String storeName;
 
-    @Column(nullable = false, name = "store_phone")
+    @Column(nullable = false)
     private String storePhone;
 
-    @Column(nullable = false, name = "min_price")
+    @Column(nullable = false)
     private Long minPrice;
 
-    @Column(nullable = false, name = "store_address")
+    @Column(nullable = false)
     private String storeAddress;
 
     @OneToMany(mappedBy = "store", cascade = CascadeType.ALL, orphanRemoval = true)

@@ -19,20 +19,11 @@ public class CartResponseDto {
 
     private final Long storeId;
 
-    public static CartResponseDto from(Cart cart) {
+    public static CartResponseDto from(Cart cart, List<CartMenuDto> cartMenuList) {
         return CartResponseDto.builder()
                 .cartId(cart.getId())
-                .cartMenuList(
-                        cart.getCartMenuList().stream()
-                                .map(cm -> CartMenuDto.builder()
-                                        .menuName(cm.getMenu().getMenuName())
-                                        .quantity(cm.getCartMenuQuantity())
-                                        .build())
-                                .collect(Collectors.toList())
-                )
+                .cartMenuList(cartMenuList)
                 .storeId(cart.getStore().getId())
                 .build();
     }
-
-
 }

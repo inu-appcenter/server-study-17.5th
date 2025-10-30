@@ -7,6 +7,6 @@ import lombok.Getter;
 @Getter
 @Builder
 public class CartMenuDto {
-    private String menuName;
-    private Long quantity;
+    private final String menuName;
+    private final Long quantity;
 }

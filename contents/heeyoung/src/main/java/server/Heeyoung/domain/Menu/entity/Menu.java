@@ -18,13 +18,13 @@ public class Menu {
     @Column(name = "menu_id")
     private Long id;
 
-    @Column(nullable = false, name = "menu_name")
+    @Column(nullable = false)
     private String menuName;
 
     @Column(nullable = false)
     private Long price;
 
-    @Column(name = "menu_picture")
+    @Column
     private String menuPicture;
 
     // FK

@@ -1,13 +1,15 @@
 package server.Heeyoung.domain.Menu.Dto.RequestDto;
 
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 @Getter
+@RequiredArgsConstructor
 public class MenuCreateRequestDto {
 
-    private String menuName;
+    private final String menuName;
 
-    private Long price;
+    private final Long price;
 
-    private String menuPicture;
+    private final String menuPicture;
 }
