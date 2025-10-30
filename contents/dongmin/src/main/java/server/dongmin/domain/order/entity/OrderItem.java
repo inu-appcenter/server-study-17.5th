@@ -6,12 +6,10 @@ import server.dongmin.global.BaseTimeEntity;
 
 import java.math.BigDecimal;
 
-@Table(name = "orders_item")
+@Table(name = "order_items")
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
-@Builder(access = AccessLevel.PRIVATE)
 public class OrderItem extends BaseTimeEntity {
 
     @Id
@@ -30,12 +28,20 @@ public class OrderItem extends BaseTimeEntity {
     @Column(nullable = false)
     private BigDecimal price;
 
+    private OrderItem(Long orderId, Long menuId, int quantity, BigDecimal price) {
+        this.orderId = orderId;
+        this.menuId = menuId;
+        this.quantity = quantity;
+        this.price = price;
+    }
+
+    //  TODO: Order 도메인 작성 시 인자값 변경
     public static OrderItem create(Long orderId, Long menuId, int quantity, BigDecimal price) {
-        return OrderItem.builder()
-                .orderId(orderId)
-                .menuId(menuId)
-                .quantity(quantity)
-                .price(price)
-                .build();
+        return new OrderItem(
+                orderId,
+                menuId,
+                quantity,
+                price
+        );
     }
 }

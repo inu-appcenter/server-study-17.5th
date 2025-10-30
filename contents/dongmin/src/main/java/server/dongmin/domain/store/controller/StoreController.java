@@ -15,7 +15,7 @@ import server.dongmin.domain.user.entity.UserDetailsImpl;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/store")
+@RequestMapping("/api/stores")
 public class StoreController {
 
     private final StoreService storeService;

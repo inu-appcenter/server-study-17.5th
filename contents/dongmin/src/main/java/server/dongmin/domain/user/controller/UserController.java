@@ -7,7 +7,7 @@ import server.dongmin.domain.user.service.UserService;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/user")
+@RequestMapping("/api/users")
 public class UserController {
 
     private final UserService userService;

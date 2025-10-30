@@ -12,7 +12,6 @@ import server.dongmin.domain.menu.repository.MenuRepository;
 import server.dongmin.domain.store.entity.Store;
 import server.dongmin.domain.store.repository.StoreRepository;
 import server.dongmin.domain.user.entity.UserDetailsImpl;
-import server.dongmin.domain.user.repository.UserRepository;
 
 @Service
 @RequiredArgsConstructor

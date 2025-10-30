@@ -2,11 +2,11 @@ package server.dongmin.domain.order.enums;
 
 public enum OrderStatus {
 
-    Pending,    // 대기중
-    Accepted,   // 주문 접수
-    Cooking,    // 조리중
-    Delivering, // 배달중
-    Delivered,  // 배달 완료
-    Cancelled,  // 취소
+    PENDING,    // 대기중
+    ACCEPTED,   // 주문 접수
+    COOKING,    // 조리중
+    DELIVERING, // 배달중
+    DELIVERED,  // 배달 완료
+    CANCELLED,  // 취소
 
 }

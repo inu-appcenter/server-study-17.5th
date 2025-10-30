@@ -7,12 +7,10 @@ import server.dongmin.global.BaseTimeEntity;
 
 import java.math.BigDecimal;
 
-@Table(name = "menu")
+@Table(name = "menus")
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
-@Builder(access = AccessLevel.PRIVATE)
 public class Menu extends BaseTimeEntity {
 
     @Id
@@ -34,13 +32,21 @@ public class Menu extends BaseTimeEntity {
     @Column
     private String category;
 
+    private Menu(Long storeId, String menuName, BigDecimal price, String content, String category) {
+        this.storeId = storeId;
+        this.menuName = menuName;
+        this.price = price;
+        this.content = content;
+        this.category = category;
+    }
+
     public static Menu create(Long storeId, MenuRequest menuRequest) {
-        return Menu.builder()
-                .storeId(storeId)
-                .menuName(menuRequest.getMenuName())
-                .price(menuRequest.getPrice())
-                .content(menuRequest.getContent())
-                .category(menuRequest.getCategory())
-                .build();
+        return new Menu(
+                storeId,
+                menuRequest.menuName(),
+                menuRequest.price(),
+                menuRequest.content(),
+                menuRequest.category()
+        );
     }
 }

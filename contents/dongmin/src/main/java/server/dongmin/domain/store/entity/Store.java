@@ -9,12 +9,10 @@ import server.dongmin.global.BaseTimeEntity;
 import java.math.BigDecimal;
 import java.time.LocalTime;
 
-@Table(name = "store")
+@Table(name = "stores")
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
-@Builder(access = AccessLevel.PRIVATE)
 public class Store extends BaseTimeEntity {
 
     @Id
@@ -49,17 +47,30 @@ public class Store extends BaseTimeEntity {
     @Column(nullable = false)
     private LocalTime closeBusinessHours;
 
+    private Store(Long userId, String storeName, StoreCategory category, String content, String address,
+                  BigDecimal minDeliveryPrice, BigDecimal deliveryTip, LocalTime openBusinessHours, LocalTime closeBusinessHours){
+        this.userId = userId;
+        this.storeName = storeName;
+        this.category = category;
+        this.content = content;
+        this.address = address;
+        this.minDeliveryPrice = minDeliveryPrice;
+        this.deliveryTip = deliveryTip;
+        this.openBusinessHours = openBusinessHours;
+        this.closeBusinessHours = closeBusinessHours;
+    }
+
     public static Store create(Long userId, StoreRequest storeRequest) {
-        return Store.builder()
-                .userId(userId)
-                .storeName(storeRequest.getStoreName())
-                .category(storeRequest.getCategory())
-                .content(storeRequest.getContent())
-                .address(storeRequest.getAddress())
-                .minDeliveryPrice(storeRequest.getMinDeliveryPrice())
-                .deliveryTip(storeRequest.getDeliveryTip())
-                .openBusinessHours(storeRequest.getOpenBusinessHours())
-                .closeBusinessHours(storeRequest.getCloseBusinessHours())
-                .build();
+        return new Store(
+                userId,
+                storeRequest.storeName(),
+                storeRequest.category(),
+                storeRequest.content(),
+                storeRequest.address(),
+                storeRequest.minDeliveryPrice(),
+                storeRequest.deliveryTip(),
+                storeRequest.openBusinessHours(),
+                storeRequest.closeBusinessHours()
+        );
     }
 }

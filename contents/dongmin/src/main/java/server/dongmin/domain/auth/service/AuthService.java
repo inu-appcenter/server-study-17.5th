@@ -26,9 +26,16 @@ public class AuthService {
 
     @Transactional
     public void signUp(SignUpRequest signUpRequest) {
-        // TODO: 중복되는 이메일 확인
 
-        User user = User.create(signUpRequest, bCryptPasswordEncoder.encode(signUpRequest.getPassword()));
+        if(userRepository.existsByEmail(signUpRequest.email())) {
+            throw new IllegalArgumentException("Email already exists");
+        } else if (userRepository.existsByNickName(signUpRequest.nickName())) {
+            throw new IllegalArgumentException("Nickname already exists");
+        } else if (userRepository.existsByPhoneNumber(signUpRequest.phoneNumber())) {
+            throw new IllegalArgumentException("Phone number already exists");
+        }
+
+        User user = User.create(signUpRequest, bCryptPasswordEncoder.encode(signUpRequest.password()));
 
         userRepository.save(user);
     }
@@ -37,7 +44,7 @@ public class AuthService {
     public JwtToken login(LoginRequest loginRequest) {
         try {
             UsernamePasswordAuthenticationToken authenticationToken
-                    = new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword());
+                    = new UsernamePasswordAuthenticationToken(loginRequest.email(), loginRequest.password());
             Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
             return jwtTokenProvider.generateToken(authentication);
         } catch (BadCredentialsException e) {

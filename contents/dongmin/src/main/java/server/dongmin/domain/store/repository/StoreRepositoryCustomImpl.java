@@ -28,8 +28,8 @@ public class StoreRepositoryCustomImpl implements StoreRepositoryCustom {
         List<Store> content = queryFactory
                 .selectFrom(store)
                 .where(
-                        locationContains(condition.getLocation()),
-                        categoryEq(condition.getCategory())
+                        locationContains(condition.location()),
+                        categoryEq(condition.category())
                 )
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
@@ -38,8 +38,8 @@ public class StoreRepositoryCustomImpl implements StoreRepositoryCustom {
         long total = queryFactory
                 .selectFrom(store)
                 .where(
-                        locationContains(condition.getLocation()),
-                        categoryEq(condition.getCategory())
+                        locationContains(condition.location()),
+                        categoryEq(condition.category())
                 )
                 .fetchCount();
 

@@ -8,12 +8,10 @@ import server.dongmin.domain.user.enums.Grade;
 import server.dongmin.domain.user.enums.Role;
 import server.dongmin.global.BaseTimeEntity;
 
-@Table(name = "user")
+@Table(name = "users")
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
-@Builder(access = AccessLevel.PRIVATE)
 public class User extends BaseTimeEntity {
 
     @Id
@@ -53,18 +51,32 @@ public class User extends BaseTimeEntity {
     @Column(nullable = false)
     private String address;
 
+    private User(String userName, String password, String email, String nickName, String phoneNumber,
+                 int age,  Gender gender, Grade grade, Role role, String address) {
+        this.userName = userName;
+        this.password = password;
+        this.email = email;
+        this.nickName = nickName;
+        this.phoneNumber = phoneNumber;
+        this.age = age;
+        this.gender = gender;
+        this.grade = grade;
+        this.role = role;
+        this.address = address;
+    }
+
     public static User create(SignUpRequest signUpRequest, String cryptedPassword) {
-        return User.builder()
-                .userName(signUpRequest.getUserName())
-                .password(cryptedPassword)
-                .email(signUpRequest.getEmail())
-                .nickName(signUpRequest.getNickName())
-                .phoneNumber(signUpRequest.getPhoneNumber())
-                .age(signUpRequest.getAge())
-                .gender(signUpRequest.getGender())
-                .grade(Grade.Bronze)
-                .role(signUpRequest.getRole())
-                .address(signUpRequest.getAddress())
-                .build();
+        return new User(
+                signUpRequest.userName(),
+                cryptedPassword,
+                signUpRequest.email(),
+                signUpRequest.nickName(),
+                signUpRequest.phoneNumber(),
+                signUpRequest.age(),
+                signUpRequest.gender(),
+                Grade.BRONZE,
+                signUpRequest.role(),
+                signUpRequest.address()
+        );
     }
 }

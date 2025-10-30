@@ -14,12 +14,12 @@ import server.dongmin.domain.user.entity.UserDetailsImpl;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/basket")
+@RequestMapping("/api/baskets")
 public class BasketController {
 
     private final BasketService basketService;
 
-    @PostMapping("/item")
+    @PostMapping("/items")
     public ResponseEntity<BasketItemResponse> addBasketItem(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
             @RequestBody BasketItemRequest basketItemRequest) { // @RequestBody 추가
@@ -27,7 +27,7 @@ public class BasketController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    @GetMapping("/item")
+    @GetMapping("/items")
     public ResponseEntity<Slice<BasketItemResponse>> getBasketItems(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
             Pageable pageable) {

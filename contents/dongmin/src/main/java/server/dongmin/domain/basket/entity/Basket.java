@@ -4,12 +4,10 @@ import jakarta.persistence.*;
 import lombok.*;
 import server.dongmin.global.BaseTimeEntity;
 
-@Table(name = "basket")
+@Table(name = "baskets")
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
-@Builder(access = AccessLevel.PRIVATE)
 public class Basket extends BaseTimeEntity {
 
     @Id
@@ -22,14 +20,15 @@ public class Basket extends BaseTimeEntity {
     @Column(name = "store_id", nullable = false)
     private Long storeId;
 
-    public void updateStore(Long storeId) {
+    private Basket(Long userId, Long storeId) {
+        this.userId = userId;
         this.storeId = storeId;
     }
 
     public static Basket create(Long userId, Long storeId) {
-        return Basket.builder()
-                .userId(userId)
-                .storeId(storeId)
-                .build();
+        return new Basket(
+                userId,
+                storeId
+        );
     }
 }

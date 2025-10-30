@@ -34,8 +34,8 @@ public class BasketService {
         User user = userDetails.getUser();
 
         // 추가하려는 메뉴 정보 조회
-        Menu menu = menuRepository.findById(request.getMenuId())
-                .orElseThrow(() -> new EntityNotFoundException("Menu not found with id: " + request.getMenuId()));
+        Menu menu = menuRepository.findById(request.menuId())
+                .orElseThrow(() -> new EntityNotFoundException("Menu not found with id: " + request.menuId()));
 
         // 사용자의 장바구니 조회 또는 생성
         Basket basket = basketRepository.findByUserId(user.getUserId())
@@ -49,13 +49,13 @@ public class BasketService {
         // 장바구니에 이미 해당 메뉴가 있는지 확인하고, 있으면 수량 추가, 없으면 새로 생성
         BasketItem basketItem = basketItemRepository.findByBasketIdAndMenuId(basket.getBasketId(), menu.getMenuId())
                 .map(item -> {
-                    item.addQuantity(request.getQuantity());
+                    item.addQuantity(request.quantity());
                     return item;
                 })
-                .orElseGet(() -> BasketItem.create(basket.getBasketId(), request));
+                .orElseGet(() -> BasketItem.create(basket.getBasketId(), request, menu.getPrice()));
 
         BasketItem savedItem = basketItemRepository.save(basketItem);
-        return BasketItemResponse.from(savedItem, menu);
+        return BasketItemResponse.from(savedItem);
 
     }
 
@@ -65,11 +65,7 @@ public class BasketService {
         // 사용자의 장바구니를 조회하여, 있으면 아이템 목록을, 없으면 비어있는 Slice를 반환
         return basketRepository.findByUserId(userDetails.getUser().getUserId())
                 .map(basket -> basketItemRepository.findByBasketId(basket.getBasketId(), pageable)
-                        .map(basketItem -> {
-                            Menu menu = menuRepository.findById(basketItem.getMenuId())
-                                    .orElseThrow(() -> new EntityNotFoundException("Menu not found with id: " + basketItem.getMenuId()));
-                            return BasketItemResponse.from(basketItem, menu);
-                        }))
+                        .map(BasketItemResponse::from))
                 .orElse(new SliceImpl<>(Collections.emptyList(), pageable, false));
 
     }

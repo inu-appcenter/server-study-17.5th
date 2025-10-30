@@ -5,12 +5,12 @@ import lombok.*;
 import server.dongmin.domain.basket.dto.req.BasketItemRequest;
 import server.dongmin.global.BaseTimeEntity;
 
-@Table(name = "basket_item")
+import java.math.BigDecimal;
+
+@Table(name = "basket_items")
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
-@Builder(access = AccessLevel.PRIVATE)
 public class BasketItem extends BaseTimeEntity {
 
     @Id
@@ -26,16 +26,27 @@ public class BasketItem extends BaseTimeEntity {
     @Column(nullable = false)
     private int quantity;
 
-    public void addQuantity(int quantity) {
-        this.quantity += quantity;
+    @Column(nullable = false)
+    private BigDecimal price;
+
+    private BasketItem(Long menuId, Long basketId, int quantity, BigDecimal price) {
+        this.menuId = menuId;
+        this.basketId = basketId;
+        this.quantity = quantity;
+        this.price =  price;
     }
 
-    public static BasketItem create(Long basketId, BasketItemRequest basketItemRequest) {
-        return BasketItem.builder()
-                .menuId(basketItemRequest.getMenuId())
-                .basketId(basketId)
-                .quantity(basketItemRequest.getQuantity())
-                .build();
+    public static BasketItem create(Long basketId, BasketItemRequest basketItemRequest,BigDecimal price) {
+        return new BasketItem(
+                basketItemRequest.menuId(),
+                basketId,
+                basketItemRequest.quantity(),
+                price
+        );
+    }
+
+    public void addQuantity(int quantity) {
+        this.quantity += quantity;
     }
 
 }

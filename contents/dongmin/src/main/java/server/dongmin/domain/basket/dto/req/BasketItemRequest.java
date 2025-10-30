@@ -1,11 +1,9 @@
 package server.dongmin.domain.basket.dto.req;
 
-import lombok.Getter;
+public record BasketItemRequest(
 
-@Getter
-public class BasketItemRequest {
-
-    private Long menuId;
-    private int quantity;
+        Long menuId,
+        int quantity
+) {
 
 }

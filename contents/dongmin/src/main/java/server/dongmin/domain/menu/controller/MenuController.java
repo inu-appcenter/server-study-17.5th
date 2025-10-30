@@ -10,13 +10,11 @@ import org.springframework.web.bind.annotation.*;
 import server.dongmin.domain.menu.dto.req.MenuRequest;
 import server.dongmin.domain.menu.dto.res.MenuResponse;
 import server.dongmin.domain.menu.service.MenuService;
-import server.dongmin.domain.store.dto.req.StoreRequest;
-import server.dongmin.domain.store.dto.res.StoreResponse;
 import server.dongmin.domain.user.entity.UserDetailsImpl;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/store/{storeId}/menu")
+@RequestMapping("/api/stores/{storeId}/menus")
 public class MenuController {
 
     private final MenuService menuService;
@@ -31,7 +29,7 @@ public class MenuController {
     }
 
     @GetMapping
-    public ResponseEntity<Slice<MenuResponse>> getStores(
+    public ResponseEntity<Slice<MenuResponse>> getMenus(
             @PathVariable Long storeId,
             Pageable pageable){
         return ResponseEntity.status(HttpStatus.OK).body(menuService.getMenusByStoreId(storeId, pageable));

@@ -1,7 +1,6 @@
 package server.dongmin.domain.store.service;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
@@ -25,15 +24,13 @@ public class StoreService {
     @Transactional
     public StoreResponse createStore(UserDetailsImpl userDetails, StoreRequest storeRequest) {
 
-        if (userDetails.getUser().getRole() != Role.OWNER) {
+        if (userDetails.getUser().getRole() == Role.OWNER || userDetails.getUser().getRole() == Role.ADMIN) {
+            Store store = Store.create(userDetails.getUser().getUserId(),  storeRequest);
+            storeRepository.save(store);
+            return StoreResponse.from(store);
+        } else
             throw new IllegalArgumentException("User is not a owner of this store"); // TODO: Custom exception
-        }
 
-        Store store = Store.create(userDetails.getUser().getUserId(),  storeRequest);
-
-        storeRepository.save(store);
-
-        return StoreResponse.from(store);
     }
 
     @Transactional(readOnly = true)
