@@ -2,34 +2,33 @@ package server.dongmin.domain.basket.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import server.dongmin.domain.store.entity.Store;
-import server.dongmin.domain.user.entity.User;
 import server.dongmin.global.BaseTimeEntity;
 
-@Table(name = "basket")
+@Table(name = "baskets")
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
-@Builder(access = AccessLevel.PRIVATE)
 public class Basket extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long basketId;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false, unique = true)
-    private User user;
+    @Column(name = "user_id", nullable = false, unique = true)
+    private Long userId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "store_id", nullable = false)
-    private Store store;
+    @Column(name = "store_id", nullable = false)
+    private Long storeId;
 
-    public static Basket create(User user, Store store) {
-        return Basket.builder()
-                .user(user)
-                .store(store)
-                .build();
+    private Basket(Long userId, Long storeId) {
+        this.userId = userId;
+        this.storeId = storeId;
+    }
+
+    public static Basket create(Long userId, Long storeId) {
+        return new Basket(
+                userId,
+                storeId
+        );
     }
 }

@@ -2,38 +2,51 @@ package server.dongmin.domain.basket.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import server.dongmin.domain.menu.entity.Menu;
+import server.dongmin.domain.basket.dto.req.BasketItemRequest;
 import server.dongmin.global.BaseTimeEntity;
 
-@Table(name = "basket_item")
+import java.math.BigDecimal;
+
+@Table(name = "basket_items")
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
-@Builder(access = AccessLevel.PRIVATE)
 public class BasketItem extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long basketItemId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "menu_id", nullable = false)
-    private Menu menu;
+    @Column(name = "menu_id", nullable = false)
+    private Long menuId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "basket_id", nullable = false)
-    private Basket basket;
+    @Column(name = "basket_id", nullable = false)
+    private Long basketId;
 
     @Column(nullable = false)
     private int quantity;
 
-    public static BasketItem create(Menu menu, Basket basket, int quantity) {
-        return BasketItem.builder()
-                .menu(menu)
-                .basket(basket)
-                .quantity(quantity)
-                .build();
+    @Column(nullable = false)
+    private BigDecimal price;
+
+    private BasketItem(Long menuId, Long basketId, int quantity, BigDecimal price) {
+        this.menuId = menuId;
+        this.basketId = basketId;
+        this.quantity = quantity;
+        this.price =  price;
+    }
+
+    public static BasketItem create(Long basketId, BasketItemRequest basketItemRequest,BigDecimal price) {
+        return new BasketItem(
+                basketItemRequest.menuId(),
+                basketId,
+                basketItemRequest.quantity(),
+                price
+        );
+    }
+
+    public void addQuantity(int quantity) {
+        this.quantity += quantity;
     }
 
 }
