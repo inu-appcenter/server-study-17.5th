@@ -5,6 +5,10 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import server.Heeyoung.domain.Menu.entity.Menu;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -16,17 +20,20 @@ public class Store {
     @Column(name = "store_id")
     private Long id;
 
-    @Column(nullable = false, name = "store_name")
+    @Column(nullable = false)
     private String storeName;
 
-    @Column(nullable = false, name = "store_phone")
+    @Column(nullable = false)
     private String storePhone;
 
-    @Column(nullable = false, name = "min_price")
+    @Column(nullable = false)
     private Long minPrice;
 
-    @Column(nullable = false, name = "store_address")
+    @Column(nullable = false)
     private String storeAddress;
+
+    @OneToMany(mappedBy = "store", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Menu> menuList = new ArrayList<>();
 
     @Builder
     private Store(String storeName, String storePhone, Long minPrice, String storeAddress) {
@@ -34,6 +41,11 @@ public class Store {
         this.storePhone = storePhone;
         this.minPrice = minPrice;
         this.storeAddress = storeAddress;
+    }
+
+    public void addMenu(Menu menu) {
+        this.menuList.add(menu);
+        menu.setStore(this);
     }
 
 

@@ -1,10 +1,8 @@
 package server.Heeyoung.domain.User.entity;
 
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import server.Heeyoung.domain.Cart.entity.Cart;
 import server.Heeyoung.domain.Order.entity.Order;
 
 import java.util.List;
@@ -19,7 +17,7 @@ public class User {
     @Column(name = "user_id")
     private Long id;
 
-    @Column(unique = true, nullable = false, name = "login_id")
+    @Column(unique = true, nullable = false)
     private String loginId;
 
     @Column(nullable = false)
@@ -28,7 +26,7 @@ public class User {
     @Column(nullable = false, unique = true)
     private String email;
 
-    @Column(nullable = false, name = "phone_num")
+    @Column(nullable = false)
     private String phoneNum;
 
     @Column(nullable = false)
@@ -43,6 +41,9 @@ public class User {
     @OneToMany(mappedBy = "user")
     private List<Order> orders;
 
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Cart cart;
+
     @Builder
     private User(String loginId, String password, String email, String phoneNum, String address, String nickname, String name) {
         this.loginId = loginId;
@@ -54,5 +55,7 @@ public class User {
         this.name = name;
     }
 
-
+    public void clearCart() {
+        this.cart = null;
+    }
 }

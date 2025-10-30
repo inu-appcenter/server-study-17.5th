@@ -23,11 +23,11 @@ public class Order {
     @Column(name = "order_id")
     private Long id;
 
-    @Column(nullable = false, name = "payment_method")
+    @Column(nullable = false)
     // enum???
     private String paymentMethod;
 
-    @Column(nullable = false, name = "total_price")
+    @Column(nullable = false)
     private Long totalPrice;
 
     private String request;
