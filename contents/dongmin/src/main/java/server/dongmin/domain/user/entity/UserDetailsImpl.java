@@ -33,7 +33,7 @@ public class UserDetailsImpl implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return user.getRole() != Role.BANNED;
+        return true;
     }
 
     @Override

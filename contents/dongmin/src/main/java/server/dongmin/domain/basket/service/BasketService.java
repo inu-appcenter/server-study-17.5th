@@ -30,7 +30,6 @@ public class BasketService {
 
     @Transactional
     public BasketItemResponse addBasketItem(UserDetailsImpl userDetails, BasketItemRequest request) {
-
         User user = userDetails.getUser();
 
         // 추가하려는 메뉴 정보 조회
@@ -46,27 +45,28 @@ public class BasketService {
             throw new IllegalArgumentException("Cannot add items from different stores.");
         }
 
-        // 장바구니에 이미 해당 메뉴가 있는지 확인하고, 있으면 수량 추가, 없으면 새로 생성
-        BasketItem basketItem = basketItemRepository.findByBasketIdAndMenuId(basket.getBasketId(), menu.getMenuId())
-                .map(item -> {
-                    item.addQuantity(request.quantity());
-                    return item;
-                })
-                .orElseGet(() -> BasketItem.create(basket.getBasketId(), request, menu.getPrice()));
+        BasketItem basketItem = checkMenuInBasket(basket, menu, request);
 
         BasketItem savedItem = basketItemRepository.save(basketItem);
         return BasketItemResponse.from(savedItem);
-
     }
 
     @Transactional(readOnly = true)
     public Slice<BasketItemResponse> getBasketItems(UserDetailsImpl userDetails, Pageable pageable) {
-
         // 사용자의 장바구니를 조회하여, 있으면 아이템 목록을, 없으면 비어있는 Slice를 반환
         return basketRepository.findByUserId(userDetails.getUser().getUserId())
                 .map(basket -> basketItemRepository.findByBasketId(basket.getBasketId(), pageable)
                         .map(BasketItemResponse::from))
                 .orElse(new SliceImpl<>(Collections.emptyList(), pageable, false));
+    }
 
+    // 장바구니에 이미 해당 메뉴가 있는지 확인하고, 있으면 수량 추가, 없으면 새로 생성
+    public BasketItem checkMenuInBasket(Basket basket, Menu menu, BasketItemRequest request) {
+        return basketItemRepository.findByBasketIdAndMenuId(basket.getBasketId(), menu.getMenuId())
+                .map(item -> {
+                    item.addQuantity(request.quantity());
+                    return item;
+                })
+                .orElseGet(() -> BasketItem.create(basket.getBasketId(), request, menu.getPrice()));
     }
 }
