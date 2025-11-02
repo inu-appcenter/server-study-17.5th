@@ -4,17 +4,17 @@ import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.oauth2.jwt.JwtException;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
+import server.dongmin.domain.user.entity.User;
 import server.dongmin.domain.user.entity.UserDetailsImpl;
-import server.dongmin.domain.user.repository.UserRepository;
 import server.dongmin.domain.user.service.UserDetailsServiceImpl;
+import server.dongmin.global.jwt.refresh.RefreshToken;
+import server.dongmin.global.jwt.refresh.RefreshTokenRepository;
 
 import java.security.Key;
 import java.util.Arrays;
@@ -26,17 +26,22 @@ import java.util.stream.Collectors;
 @Component
 public class JwtTokenProvider {
 
-    private long accessTokenValidMillisecond = 1000L * 60 * 60;// Valid 1 hour
-    private long refreshTokenValidMillisecond = 6* 1000L * 60 * 60;// Valid 6 hour
-
     private final Key key;
+    private final long accessTokenValidMillisecond;
+    private final long refreshTokenValidMillisecond;
     private final UserDetailsServiceImpl userDetailsService;
-    private final UserRepository userRepository;
+    private final RefreshTokenRepository refreshTokenRepository;
 
-    public JwtTokenProvider(@Value("${jwt.secret}") String secretKey, UserDetailsServiceImpl userDetailsService, UserRepository userRepository) {
+    public JwtTokenProvider(@Value("${jwt.secret}") String secretKey,
+                            @Value("${jwt.accessTokenValidMillisecond}") long accessTokenValidMillisecond,
+                            @Value("${jwt.refreshTokenValidMillisecond}") long refreshTokenValidMillisecond,
+                            UserDetailsServiceImpl userDetailsService,
+                            RefreshTokenRepository refreshTokenRepository) {
         this.key = Keys.hmacShaKeyFor(secretKey.getBytes());
+        this.accessTokenValidMillisecond = accessTokenValidMillisecond;
+        this.refreshTokenValidMillisecond = refreshTokenValidMillisecond;
         this.userDetailsService = userDetailsService;
-        this.userRepository = userRepository;
+        this.refreshTokenRepository = refreshTokenRepository;
     }
 
     public JwtToken generateToken(Authentication authentication) {
@@ -44,97 +49,106 @@ public class JwtTokenProvider {
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.joining(","));
 
-        Date now = new Date();
+        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+        User user = userDetails.getUser();
 
-        // Access Token 생성
-        String accessToken = Jwts.builder()
-                .setSubject(authentication.getName())
-                .claim("auth", authorities)
-                .setIssuedAt(now)
-                .setExpiration(new Date(now.getTime() + accessTokenValidMillisecond))
-                .signWith(key, SignatureAlgorithm.HS256)
-                .compact();
+        String accessToken = createAccessToken(user.getEmail(), authorities);
+        String refreshToken = createRefreshToken(user.getEmail());
 
-        // Refresh Token 생성
-        String refreshToken = Jwts.builder()
-                .setIssuedAt(now)
-                .setExpiration(new Date(now.getTime() + refreshTokenValidMillisecond))
-                .signWith(key, SignatureAlgorithm.HS256)
-                .compact();
-
-        String userName = userRepository.findByEmail(authentication.getName())
-                .orElseThrow(() -> new UsernameNotFoundException("User not found")) // TODO: Custom exception
-                .getUserName();
+        upsertRefreshToken(user, refreshToken);
 
         // TokenInfo 객체 생성 및 반환
         return JwtToken.builder()
-                .userName(userName)
-                .grantType("Bearer") // 토큰 타입 설정
-                .accessToken(accessToken) // Access Token 설정
-                .refreshToken(refreshToken) // Refresh Token 설정
+                .grantType("Bearer") // 토큰 타입
+                .accessToken(accessToken) // Access Token
+                .refreshToken(refreshToken) // Refresh Token
                 .build(); // TokenInfo 객체 생성
     }
 
     // JWT 토큰을 복호화하여 토큰에 들어있는 정보를 꺼내 Authentication 객체를 생성
-    public Authentication getAuthentication(String token) {
+    public Authentication getAuthentication(String accessToken) {
         // Jwt 토큰 복호화
-        Claims claims = getClaims(token);
+        Claims claims = parseClaims(accessToken);
 
         if (claims.get("auth") == null) {
-            throw new RuntimeException("권한 정보가 없는 토큰입니다.");
+            throw new RuntimeException("Invalid token"); // TODO: Custom Error
         }
 
         Collection<? extends GrantedAuthority> authorities = Arrays.stream(claims.get("auth").toString().split(","))
                 .map(SimpleGrantedAuthority::new)
                 .toList();
 
-        try{
-            UserDetailsImpl userDetails = userDetailsService.loadUserByUsername(getEmailFromToken(token));
-            return new UsernamePasswordAuthenticationToken(userDetails, "", authorities);
-        }catch(BadCredentialsException | UsernameNotFoundException e) {
-            // TODO: Custom exception
-            throw e;
-        }
+        UserDetails userDetails = userDetailsService.loadUserByUsername(claims.getSubject());
+        return new UsernamePasswordAuthenticationToken(userDetails, "", authorities);
     }
 
-    public Claims getClaims(String accessToken){
-        return Jwts.parserBuilder()
-                .setSigningKey(key)
-                .build()
-                .parseClaimsJws(accessToken)
-                .getBody();
-    }
-
-    public String getEmailFromToken(String accessToken){
-        return Jwts
-                .parserBuilder()
-                .setSigningKey(key)
-                .build()
-                .parseClaimsJws(accessToken)
-                .getBody()
-                .getSubject();
-    }
-
-    // JWT 토큰의 유효성을 검증, 유효하지 않을 시 예외 처리
-    public boolean validateToken(String token){
-        if(token == null)
-            throw new JwtException("AccessToken is null");
-
+    public boolean validateToken(String token) {
         try {
-            Jwts.parserBuilder()
-                    .setSigningKey(key)
-                    .build()
-                    .parseClaimsJws(token)
-                    .getBody();
+            Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
             return true;
+        } catch (io.jsonwebtoken.security.SecurityException | MalformedJwtException e) {
+            log.info("Invalid JWT Token", e);
         } catch (ExpiredJwtException e) {
-            throw new JwtException("토큰이 만료되었습니다.");
-        } catch (MalformedJwtException e) {
-            throw new JwtException("토큰의 형식이 옳바르지 않습니다.");
-        } catch (SignatureException | SecurityException e) {
-            throw new JwtException("토큰의 서명이 옳바르지 않습니다.");
+            log.info("Expired JWT Token", e);
         } catch (UnsupportedJwtException e) {
-            throw new JwtException("토큰의 형식이 만료되었습니다. ");
+            log.info("Unsupported JWT Token", e);
+        } catch (IllegalArgumentException e) {
+            log.info("JWT claims string is empty.", e);
         }
+        return false;
+    }
+
+    private Claims parseClaims(String accessToken) {
+        try {
+            return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(accessToken).getBody();
+        } catch (ExpiredJwtException e) {
+            return e.getClaims();
+        }
+    }
+
+    // Access token 생성
+    private String createAccessToken(String username, String authorities) {
+        Date now = new Date();
+        return Jwts.builder()
+                .setSubject(username)
+                .claim("auth", authorities)
+                .setIssuedAt(now)
+                .setExpiration(new Date(now.getTime() + accessTokenValidMillisecond))
+                .signWith(key, SignatureAlgorithm.HS256)
+                .compact();
+    }
+
+    // Refresh token 생성
+    private String createRefreshToken(String username) {
+        Date now = new Date();
+        return Jwts.builder()
+                .setSubject(username)
+                .setIssuedAt(now)
+                .setExpiration(new Date(now.getTime() + refreshTokenValidMillisecond))
+                .signWith(key, SignatureAlgorithm.HS256)
+                .compact();
+    }
+
+    public JwtToken generateTokenByUsername(String username) {
+        UserDetailsImpl userDetails = userDetailsService.loadUserByUsername(username);
+        Authentication authentication = new UsernamePasswordAuthenticationToken(
+                userDetails, null, userDetails.getAuthorities()
+        );
+        return generateToken(authentication);
+    }
+
+    private void upsertRefreshToken(User user, String refreshTokenValue) {
+        refreshTokenRepository.findByUserId(user.getUserId())
+                .ifPresentOrElse(
+                        // 있으면 update
+                        rt -> rt.updateToken(refreshTokenValue),
+                        // 없으면 insert
+                        () -> refreshTokenRepository.save(
+                                RefreshToken.builder()
+                                        .user(user)
+                                        .refreshToken(refreshTokenValue)
+                                        .build()
+                        )
+                );
     }
 }
