@@ -39,9 +39,6 @@ public class User {
     @Column(nullable = false)
     private String name;
 
-    @Column
-    private String refreshToken;
-
     @OneToMany(mappedBy = "user")
     private List<Order> orders;
 
@@ -61,9 +58,5 @@ public class User {
 
     public void clearCart() {
         this.cart = null;
-    }
-
-    public void setRefreshToken(String token) {
-        this.refreshToken = token;
     }
 }

@@ -37,6 +37,8 @@ public class SecurityConfig {
 
     }
 
+    // CORS 설정 추가하기
+
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();

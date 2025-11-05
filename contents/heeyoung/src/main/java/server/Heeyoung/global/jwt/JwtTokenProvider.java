@@ -103,22 +103,15 @@ public class JwtTokenProvider {
 
         String loginId = claims.getSubject();
 
-        User user = userRepository.findByLoginId(loginId)
-                .orElseThrow(() -> new RestApiException(ErrorCode.USER_NOT_FOUND));
-
         // UserDetails 객체 생성
-        UserDetailsImpl userDetails = userDetailsServiceImpl.loadUserByUsername(user.getLoginId());
+        UserDetailsImpl userDetails = userDetailsServiceImpl.loadUserByUsername(loginId);
 
         // Authentication 리턴
         return new UsernamePasswordAuthenticationToken(userDetails, "", authorities);
     }
 
-    // 토큰 유효성 검증
+    // 토큰 유효성 검증 (형식, 서명, 위조 확인)
     public boolean validateToken(String token) {
-
-        if (token == null)
-            return false;
-
         try {
             Jwts.parserBuilder()
                     .setSigningKey(key)
@@ -126,14 +119,26 @@ public class JwtTokenProvider {
                     .parseClaimsJws(token)
                     .getBody();
             return true;
-        } catch (ExpiredJwtException e) {
-            throw new JwtException("토큰이 만료되었습니다.");
         } catch (MalformedJwtException e) {
             throw new JwtException("토큰의 형식이 올바르지 않습니다.");
         } catch (SignatureException | SecurityException e) {
             throw new JwtException("토큰의 서명이 올바르지 않습니다.");
         } catch (UnsupportedJwtException e) {
-            throw new JwtException("토큰의 형식이 만료되었습니다.");
+            throw new JwtException("지원하지 않는 JWT 형식입니다.");
+        }
+    }
+
+    // 토큰 만료 여부 확인 (만료 시 true 반환)
+    public boolean isTokenExpired(String token) {
+        try {
+            Claims claims = Jwts.parserBuilder()
+                    .setSigningKey(key)
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody();
+            return claims.getExpiration().before(new Date());
+        } catch (ExpiredJwtException e) {
+            return true; // 만료된 토큰
         }
     }
 }

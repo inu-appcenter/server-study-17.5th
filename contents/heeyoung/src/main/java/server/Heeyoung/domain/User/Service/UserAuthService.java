@@ -9,6 +9,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import server.Heeyoung.domain.RefreshToken.entity.RefreshToken;
+import server.Heeyoung.domain.RefreshToken.repository.RefreshTokenRepository;
 import server.Heeyoung.domain.User.dto.request.UserSignUpDto;
 import server.Heeyoung.domain.User.dto.request.UserLoginDto;
 import server.Heeyoung.domain.User.entity.User;
@@ -18,6 +20,9 @@ import server.Heeyoung.global.exception.RestApiException;
 import server.Heeyoung.global.jwt.JwtTokenResponseDto;
 import server.Heeyoung.global.jwt.JwtTokenProvider;
 
+import java.time.ZoneId;
+import java.util.Date;
+
 @Service
 @RequiredArgsConstructor
 public class UserAuthService {
@@ -26,6 +31,25 @@ public class UserAuthService {
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final JwtTokenProvider jwtTokenProvider;
+    private final RefreshTokenRepository refreshTokenRepository;
+
+    private void saveRefreshToken(User user, String refreshToken) {
+        // 기존 토큰 있는지 확인
+        boolean exists = refreshTokenRepository.existsByUserLoginId(user.getLoginId());
+
+        // 존재하면 삭제
+        if (exists) {
+            refreshTokenRepository.deleteByRefreshToken(user.getLoginId());
+        }
+
+        // 새 토큰 저장
+        RefreshToken token = RefreshToken.builder()
+                .user(user)
+                .refreshToken(refreshToken)
+                .build();
+
+        refreshTokenRepository.save(token);
+    }
 
     // 회원가입
     @Transactional
@@ -66,7 +90,7 @@ public class UserAuthService {
         User user = userDetails.getUser();
 
         // RefreshToken 저장
-        user.setRefreshToken(tokenDto.getRefreshToken());
+        saveRefreshToken(user, tokenDto.getRefreshToken());
 
         return tokenDto;
     }
@@ -74,35 +98,38 @@ public class UserAuthService {
     // RefreshToken 을 이용해 AccessToken 재발급
     @Transactional
     public JwtTokenResponseDto reissueToken(String refreshToken) {
-
-        try {
-            // getClaims 에서 검증 + 추출
-            Claims claims = jwtTokenProvider.getClaims(refreshToken);
-            String loginId = claims.getSubject();
-
-            // DB 조회 및 토큰 일치 확인
-            User user = userRepository.findByLoginId(loginId)
-                    .orElseThrow(() -> new RestApiException(ErrorCode.USER_NOT_FOUND));
-
-            if (!refreshToken.equals(user.getRefreshToken())) {
-                throw new RestApiException(ErrorCode.INVALID_TOKEN);
-            }
-
-            // auth 객체 만들기
-            UserDetailsImpl userDetails = new UserDetailsImpl(user);
-            UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
-
-            // AccessToken 재발급
-            String newAccessToken = jwtTokenProvider.generateAccessToken(auth);
-
-            return JwtTokenResponseDto.builder()
-                    .type("Bearer")
-                    .accessToken(newAccessToken)
-                    .refreshToken(refreshToken)
-                    .build();
-
-        } catch (JwtException e) {
-            throw new RestApiException(ErrorCode.INVALID_TOKEN);
+        // DB 에 refreshToken 존재하는지 확인
+        RefreshToken tokenEntity = refreshTokenRepository.findByRefreshToken(refreshToken);
+        if (tokenEntity == null) {
+            // DB 에 없으면 재로그인 요청
+            throw new RestApiException(ErrorCode.EXPIRED_REFRESH_TOKEN);
         }
+
+        // 만료 여부 확인
+        if (jwtTokenProvider.isTokenExpired(refreshToken)) {
+            refreshTokenRepository.delete(tokenEntity);
+            // 만료 시 재로그인 요청
+            throw new RestApiException(ErrorCode.EXPIRED_REFRESH_TOKEN);
+        }
+
+        // 토큰 유효하면 access token 재발급
+        Claims claims = jwtTokenProvider.getClaims(refreshToken);
+        String loginId = claims.getSubject();
+
+        User user = userRepository.findByLoginId(loginId)
+                .orElseThrow(() -> new RestApiException(ErrorCode.USER_NOT_FOUND));
+
+        // auth 객체 만들기
+        UserDetailsImpl userDetails = new UserDetailsImpl(user);
+        UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
+
+        // AccessToken 재발급
+        String newAccessToken = jwtTokenProvider.generateAccessToken(auth);
+
+        return JwtTokenResponseDto.builder()
+                .type("Bearer")
+                .accessToken(newAccessToken)
+                .refreshToken(refreshToken)
+                .build();
     }
 }

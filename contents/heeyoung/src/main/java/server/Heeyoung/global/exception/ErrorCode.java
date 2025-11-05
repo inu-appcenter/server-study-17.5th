@@ -18,7 +18,8 @@ public enum ErrorCode {
     INVALID_QUANTITY(HttpStatus.BAD_REQUEST, "잘못된 수량입니다."),
     UNAUTHORIZED_CART_ACCESS(HttpStatus.FORBIDDEN, "본인의 장바구니만 수정할 수 있습니다."),
 
-    INVALID_TOKEN(HttpStatus.BAD_REQUEST, "유효하지 않은 토큰입니다.");
+    INVALID_TOKEN(HttpStatus.UNAUTHORIZED, "유효하지 않은 토큰입니다."),
+    EXPIRED_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED, "로그인이 만료되었습니다.");
 
     private final HttpStatus httpStatus;
     private final String message;
