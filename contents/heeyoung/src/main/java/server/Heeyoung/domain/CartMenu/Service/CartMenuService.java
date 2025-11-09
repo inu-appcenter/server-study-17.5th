@@ -31,7 +31,7 @@ public class CartMenuService {
     private final StoreRepository storeRepository;
 
     private Cart getOrCreateCart(User user, Store store) {
-        return cartRepository.findByUserIdAndStore(user.getId(), store.getId())
+        return cartRepository.findByUserIdAndStoreId(user.getId(), store.getId())
                 .orElseGet(()->cartRepository.save(Cart.builder()
                         .user(user)
                         .store(store)
