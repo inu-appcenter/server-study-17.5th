@@ -2,6 +2,7 @@ package server.dongmin.domain.auth.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -11,15 +12,19 @@ import org.springframework.transaction.annotation.Transactional;
 import server.dongmin.domain.auth.dto.req.LoginRequest;
 import server.dongmin.domain.auth.dto.req.SignUpRequest;
 import server.dongmin.domain.user.entity.User;
+import server.dongmin.domain.user.entity.UserDetailsImpl;
 import server.dongmin.domain.user.repository.UserRepository;
 import server.dongmin.global.jwt.JwtToken;
 import server.dongmin.global.jwt.JwtTokenProvider;
+import server.dongmin.global.jwt.refresh.RefreshToken;
+import server.dongmin.global.jwt.refresh.RefreshTokenRepository;
 
 @Service
 @RequiredArgsConstructor
 public class AuthService {
 
     private final UserRepository userRepository;
+    private final RefreshTokenRepository refreshTokenRepository;
     private final JwtTokenProvider jwtTokenProvider;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
@@ -50,5 +55,31 @@ public class AuthService {
         } catch (BadCredentialsException e) {
             throw new BadCredentialsException("Bad credentials");
         }
+    }
+
+    @Transactional
+    public void logout(UserDetailsImpl userDetails) {
+        RefreshToken refreshToken = refreshTokenRepository.findByUserId(userDetails.getUser().getUserId())
+                .orElseThrow(() -> new RuntimeException("Refresh token not found")); // TODO: Custom Error
+
+        refreshTokenRepository.delete(refreshToken);
+    }
+
+    @Transactional
+    public JwtToken reissue(String refreshToken) {
+        // 1) JWT 로서 유효한지
+        jwtTokenProvider.validateToken(refreshToken); // 유효하지 않으면 여기서 예외
+
+        // 2) DB에 있는지
+        RefreshToken saved = refreshTokenRepository.findByRefreshToken(refreshToken)
+                .orElseThrow(() -> new RuntimeException("저장된 리프레시 토큰이 아닙니다."));
+
+        // 3) 유저 정보로 새 토큰 생성
+        User user = userRepository.findByUserId(saved.getUserId())
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
+        JwtToken newToken = jwtTokenProvider.generateTokenByUsername(user.getEmail());
+
+        return newToken;
     }
 }

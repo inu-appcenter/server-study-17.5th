@@ -1,18 +1,17 @@
 package server.dongmin.global.jwt;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
-@Log4j2
+@Slf4j
 @Component
 public class JwtExceptionFilter extends OncePerRequestFilter {
 
@@ -30,16 +29,20 @@ public class JwtExceptionFilter extends OncePerRequestFilter {
     }
 
     private void setErrorResponse(HttpServletResponse response, JwtException e) throws IOException{
-        ObjectMapper objectMapper = new ObjectMapper();
-
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 
-        /*ErrorResponse errorResponse = new ErrorResponse(
+        // TODO: Custom Error 구현 시 수정
+        /* ErrorResponse errorResponse = new ErrorResponse(
                 HttpStatus.UNAUTHORIZED.value(),
                 e.getMessage()
-        );
-        response.getWriter().write(objectMapper.writeValueAsString(errorResponse));*/
+        ); */
+        var body = """
+                {"code":401,
+                "message":"%s"}
+                """.formatted(e.getMessage());
+
+        response.getWriter().write(body);
     }
 }

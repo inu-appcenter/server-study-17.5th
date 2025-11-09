@@ -8,14 +8,14 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.stereotype.Component;
-import org.springframework.util.AntPathMatcher;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
+import server.dongmin.domain.user.entity.UserDetailsImpl;
+import server.dongmin.domain.user.enums.Role;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
 
 @Slf4j
 @Component
@@ -23,19 +23,6 @@ import java.util.List;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtTokenProvider jwtTokenProvider; // JWT 토큰을 처리하기 위한 JwtTokenProvider 객체
-    private final AntPathMatcher pathMatcher = new AntPathMatcher();
-
-    // 인증 없이 통과 가능한 API 리스트
-    private final List<String> whiteListUri = Arrays.asList(
-            "/api/auth/**"
-    );
-
-    @Override
-    protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
-        String path = request.getRequestURI();
-        return whiteListUri.stream()
-                .anyMatch(pattern -> pathMatcher.match(pattern, path));
-    }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
@@ -48,6 +35,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         // 토큰이 유효할 경우, 토큰에서 Authentication 객체를 가지고 와서 SecurityContext에 저장
         if (token != null && jwtTokenProvider.validateToken(token)) {
             Authentication authentication = jwtTokenProvider.getAuthentication(token);
+            UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+
+            // 밴된 사용자 검사
+            if (userDetails.getUser().getRole() == Role.BANNED) {
+                throw new JwtException("This user was banned!");
+            }
             SecurityContextHolder.getContext().setAuthentication(authentication);
         }
 
@@ -55,7 +48,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 
-    // Request Header에서 토큰 정보 추출
+    // Request Header 에서 토큰 정보 추출
     private String resolveToken(HttpServletRequest request) {
         String bearerToken = request.getHeader("Authorization");
         if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {
