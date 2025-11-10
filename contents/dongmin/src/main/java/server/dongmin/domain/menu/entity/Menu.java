@@ -29,7 +29,7 @@ public class Menu extends BaseTimeEntity {
     @Column
     private String content;
 
-    @Column
+    @Column(nullable = false)
     private String category;
 
     private Menu(Long storeId, String menuName, BigDecimal price, String content, String category) {

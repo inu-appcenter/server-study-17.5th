@@ -8,12 +8,13 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 import server.dongmin.domain.user.entity.UserDetailsImpl;
 import server.dongmin.domain.user.enums.Role;
+import server.dongmin.global.exception.error.CustomErrorCode;
+import server.dongmin.global.exception.error.RestApiException;
 
 import java.io.IOException;
 
@@ -39,7 +40,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             // 밴된 사용자 검사
             if (userDetails.getUser().getRole() == Role.BANNED) {
-                throw new JwtException("This user was banned!");
+                throw new RestApiException(CustomErrorCode.USER_BANNED);
             }
             SecurityContextHolder.getContext().setAuthentication(authentication);
         }

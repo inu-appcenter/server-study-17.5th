@@ -1,5 +1,6 @@
 package server.dongmin.domain.menu.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -23,7 +24,7 @@ public class MenuController {
     public ResponseEntity<MenuResponse> createMenu(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
             @PathVariable Long storeId,
-            @RequestBody MenuRequest menuRequest){
+            @Valid @RequestBody MenuRequest menuRequest){
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(menuService.createMenu(userDetails, storeId, menuRequest));
     }

@@ -1,5 +1,6 @@
 package server.dongmin.domain.store.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -23,7 +24,7 @@ public class StoreController {
     @PostMapping
     public ResponseEntity<StoreResponse> createStore(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
-            @RequestBody StoreRequest storeRequestDto) {
+            @Valid @RequestBody StoreRequest storeRequestDto) {
         return ResponseEntity.status(HttpStatus.CREATED).body(storeService.createStore(userDetails, storeRequestDto));
     }
 

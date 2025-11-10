@@ -14,6 +14,8 @@ import server.dongmin.domain.auth.dto.req.SignUpRequest;
 import server.dongmin.domain.user.entity.User;
 import server.dongmin.domain.user.entity.UserDetailsImpl;
 import server.dongmin.domain.user.repository.UserRepository;
+import server.dongmin.global.exception.error.CustomErrorCode;
+import server.dongmin.global.exception.error.RestApiException;
 import server.dongmin.global.jwt.JwtToken;
 import server.dongmin.global.jwt.JwtTokenProvider;
 import server.dongmin.global.jwt.refresh.RefreshToken;
@@ -33,19 +35,18 @@ public class AuthService {
     public void signUp(SignUpRequest signUpRequest) {
 
         if(userRepository.existsByEmail(signUpRequest.email())) {
-            throw new IllegalArgumentException("Email already exists");
+            throw new RestApiException(CustomErrorCode.EMAIL_CONFLICT);
         } else if (userRepository.existsByNickName(signUpRequest.nickName())) {
-            throw new IllegalArgumentException("Nickname already exists");
+            throw new RestApiException(CustomErrorCode.NICKNAME_CONFLICT);
         } else if (userRepository.existsByPhoneNumber(signUpRequest.phoneNumber())) {
-            throw new IllegalArgumentException("Phone number already exists");
+            throw new RestApiException(CustomErrorCode.NUMBER_CONFLICT);
         }
 
         User user = User.create(signUpRequest, bCryptPasswordEncoder.encode(signUpRequest.password()));
-
         userRepository.save(user);
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public JwtToken login(LoginRequest loginRequest) {
         try {
             UsernamePasswordAuthenticationToken authenticationToken
@@ -60,26 +61,29 @@ public class AuthService {
     @Transactional
     public void logout(UserDetailsImpl userDetails) {
         RefreshToken refreshToken = refreshTokenRepository.findByUserId(userDetails.getUser().getUserId())
-                .orElseThrow(() -> new RuntimeException("Refresh token not found")); // TODO: Custom Error
+                .orElseThrow(() -> new RestApiException(CustomErrorCode.JWT_REFRESH_NOT_FOUND));
 
         refreshTokenRepository.delete(refreshToken);
     }
 
     @Transactional
-    public JwtToken reissue(String refreshToken) {
+    public JwtToken reissue(UserDetailsImpl userDetails, String refreshToken) {
         // 1) JWT 로서 유효한지
         jwtTokenProvider.validateToken(refreshToken); // 유효하지 않으면 여기서 예외
 
         // 2) DB에 있는지
         RefreshToken saved = refreshTokenRepository.findByRefreshToken(refreshToken)
-                .orElseThrow(() -> new RuntimeException("저장된 리프레시 토큰이 아닙니다."));
+                .orElseThrow(() -> new RestApiException(CustomErrorCode.JWT_REFRESH_NOT_FOUND));
 
-        // 3) 유저 정보로 새 토큰 생성
+        // 3) 해당 유저의 Refresh Token이 맞는지
+        if (!saved.getUserId().equals(userDetails.getUser().getUserId())) {
+             throw new RestApiException(CustomErrorCode.JWT_USER_MISMATCH);
+        }
+        // 4) 유저 정보로 새 토큰 생성
         User user = userRepository.findByUserId(saved.getUserId())
-                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+                .orElseThrow(() -> new RestApiException(CustomErrorCode.USER_NOT_FOUND));
 
         JwtToken newToken = jwtTokenProvider.generateTokenByUsername(user.getEmail());
-
         return newToken;
     }
 }

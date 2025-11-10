@@ -13,6 +13,8 @@ import org.springframework.stereotype.Component;
 import server.dongmin.domain.user.entity.User;
 import server.dongmin.domain.user.entity.UserDetailsImpl;
 import server.dongmin.domain.user.service.UserDetailsServiceImpl;
+import server.dongmin.global.exception.error.CustomErrorCode;
+import server.dongmin.global.exception.error.RestApiException;
 import server.dongmin.global.jwt.refresh.RefreshToken;
 import server.dongmin.global.jwt.refresh.RefreshTokenRepository;
 
@@ -71,7 +73,7 @@ public class JwtTokenProvider {
         Claims claims = parseClaims(accessToken);
 
         if (claims.get("auth") == null) {
-            throw new RuntimeException("Invalid token"); // TODO: Custom Error
+            throw new RestApiException(CustomErrorCode.JWT_INVALID);
         }
 
         Collection<? extends GrantedAuthority> authorities = Arrays.stream(claims.get("auth").toString().split(","))
@@ -86,21 +88,24 @@ public class JwtTokenProvider {
         try {
             Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
             return true;
-        } catch (io.jsonwebtoken.security.SecurityException | MalformedJwtException e) {
-            log.info("Invalid JWT Token", e);
+        } catch (SecurityException | MalformedJwtException e) {
+            throw new RestApiException(CustomErrorCode.JWT_MALFORMED);
         } catch (ExpiredJwtException e) {
-            log.info("Expired JWT Token", e);
+            throw new RestApiException(CustomErrorCode.JWT_EXPIRED);
         } catch (UnsupportedJwtException e) {
-            log.info("Unsupported JWT Token", e);
+            throw new RestApiException(CustomErrorCode.JWT_UNSUPPORTED);
         } catch (IllegalArgumentException e) {
-            log.info("JWT claims string is empty.", e);
+            throw new RestApiException(CustomErrorCode.JWT_INVALID);
         }
-        return false;
     }
 
     private Claims parseClaims(String accessToken) {
         try {
-            return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(accessToken).getBody();
+            return Jwts.parserBuilder()
+                    .setSigningKey(key)
+                    .build()
+                    .parseClaimsJws(accessToken)
+                    .getBody();
         } catch (ExpiredJwtException e) {
             return e.getClaims();
         }
@@ -129,6 +134,7 @@ public class JwtTokenProvider {
                 .compact();
     }
 
+    // 이메일로 authentication을 만들고 토큰 생성
     public JwtToken generateTokenByUsername(String username) {
         UserDetailsImpl userDetails = userDetailsService.loadUserByUsername(username);
         Authentication authentication = new UsernamePasswordAuthenticationToken(
@@ -137,6 +143,7 @@ public class JwtTokenProvider {
         return generateToken(authentication);
     }
 
+    // DB에 해당 유저에 대한 Refresh Token이 존재하면 덮어쓰기
     private void upsertRefreshToken(User user, String refreshTokenValue) {
         refreshTokenRepository.findByUserId(user.getUserId())
                 .ifPresentOrElse(
