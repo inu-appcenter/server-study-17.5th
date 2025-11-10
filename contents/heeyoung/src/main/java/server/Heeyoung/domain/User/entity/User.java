@@ -33,7 +33,7 @@ public class User {
     @Column(nullable = false)
     private String address;
 
-    @Column(nullable = false)
+    @Column
     private String nickname;
 
     @Column(nullable = false)

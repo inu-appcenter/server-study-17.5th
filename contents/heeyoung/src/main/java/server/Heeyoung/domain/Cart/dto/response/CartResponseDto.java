@@ -1,5 +1,8 @@
 package server.Heeyoung.domain.Cart.dto.response;
 
+import com.fasterxml.jackson.databind.annotation.JsonValueInstantiator;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Getter;
 import server.Heeyoung.domain.Cart.entity.Cart;
