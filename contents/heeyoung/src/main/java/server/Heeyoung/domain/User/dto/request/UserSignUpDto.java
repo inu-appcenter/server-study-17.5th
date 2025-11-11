@@ -4,12 +4,14 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.data.web.PageableDefault;
 
 @Getter
 @NoArgsConstructor
+@AllArgsConstructor
 public class UserSignUpDto {
 
     @NotBlank(message = "아이디는 필수 입력 값입니다.")

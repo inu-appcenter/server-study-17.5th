@@ -1,6 +1,7 @@
 package server.Heeyoung.global.exception;
 
 import jakarta.persistence.MapKeyEnumerated;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -43,5 +44,16 @@ public class GlobalExceptionHandler {
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
                 .body(errors);
+    }
+
+    // 서버 에러 발생 시 처리
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ErrorResponseDto> handleException(Exception e) {
+        return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(new ErrorResponseDto(
+                        "INTERNAL_SERVER_ERROR",
+                        "서버 내부 오류가 발생했습니다."
+                ));
     }
 }

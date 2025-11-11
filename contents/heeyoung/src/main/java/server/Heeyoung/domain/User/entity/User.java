@@ -33,8 +33,8 @@ public class User {
     @Column(nullable = false)
     private String address;
 
-    @Column
-    private String nickname;
+    @Column(nullable = false)
+    private String nickname = "";
 
     @Column(nullable = false)
     private String name;
