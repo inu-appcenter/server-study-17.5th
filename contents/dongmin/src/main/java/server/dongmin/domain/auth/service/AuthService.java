@@ -2,7 +2,6 @@ package server.dongmin.domain.auth.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -46,16 +45,12 @@ public class AuthService {
         userRepository.save(user);
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public JwtToken login(LoginRequest loginRequest) {
-        try {
-            UsernamePasswordAuthenticationToken authenticationToken
-                    = new UsernamePasswordAuthenticationToken(loginRequest.email(), loginRequest.password());
-            Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
-            return jwtTokenProvider.generateToken(authentication);
-        } catch (BadCredentialsException e) {
-            throw new BadCredentialsException("Bad credentials");
-        }
+        UsernamePasswordAuthenticationToken authenticationToken
+                = new UsernamePasswordAuthenticationToken(loginRequest.email(), loginRequest.password());
+        Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
+        return jwtTokenProvider.generateToken(authentication);
     }
 
     @Transactional
@@ -80,10 +75,6 @@ public class AuthService {
              throw new RestApiException(CustomErrorCode.JWT_USER_MISMATCH);
         }
         // 4) 유저 정보로 새 토큰 생성
-        User user = userRepository.findByUserId(saved.getUserId())
-                .orElseThrow(() -> new RestApiException(CustomErrorCode.USER_NOT_FOUND));
-
-        JwtToken newToken = jwtTokenProvider.generateTokenByUsername(user.getEmail());
-        return newToken;
+        return jwtTokenProvider.generateTokenByUsername(userDetails.getUser().getEmail());
     }
 }

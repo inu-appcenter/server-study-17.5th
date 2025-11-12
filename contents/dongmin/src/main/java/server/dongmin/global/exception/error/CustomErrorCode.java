@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 public enum CustomErrorCode implements ErrorCode {
 
     // User
+    LOGIN_FAILED(HttpStatus.UNAUTHORIZED, 401, "이메일 또는 비밀번호가 일치하지 않습니다."),
     USER_BANNED(HttpStatus.FORBIDDEN, 403, "정지된 사용자 입니다."),
     USER_NOT_CREATE_STORE(HttpStatus.FORBIDDEN, 403, "가게를 만들 수 없는 유저입니다."),
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, 404,"존재하지 않는 유저입니다"),

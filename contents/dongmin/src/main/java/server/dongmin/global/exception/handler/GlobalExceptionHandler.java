@@ -7,6 +7,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.NoHandlerFoundException;
+import org.springframework.security.authentication.BadCredentialsException;
 import server.dongmin.global.exception.error.CustomErrorCode;
 import server.dongmin.global.exception.error.ErrorCode;
 import server.dongmin.global.exception.error.ErrorResponse;
@@ -44,5 +45,14 @@ public class GlobalExceptionHandler {
         return ResponseEntity
                 .status(errorCode.getHttpStatus())
                 .body(ErrorResponse.create(errorCode.getCode(), message));
+    }
+
+    @ExceptionHandler(BadCredentialsException.class)
+    public ResponseEntity<ErrorResponse> handleBadCredentialsException(BadCredentialsException e) {
+        ErrorCode errorCode = CustomErrorCode.LOGIN_FAILED;
+        log.error("BadCredentialsException", e);
+        return ResponseEntity
+                .status(errorCode.getHttpStatus())
+                .body(ErrorResponse.create(errorCode.getCode(), errorCode.getMessage()));
     }
 }
