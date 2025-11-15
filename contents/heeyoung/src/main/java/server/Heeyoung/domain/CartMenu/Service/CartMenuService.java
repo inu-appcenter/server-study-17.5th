@@ -40,14 +40,14 @@ public class CartMenuService {
 
     // 장바구니에 메뉴 추가
     @Transactional
-    public CartMenuResponseDto addMenuToCart(CartMenuRequestDto dto, Long userId, Long storeId) {
+    public CartMenuResponseDto addMenuToCart(CartMenuRequestDto dto, Long userId) {
 
         // 유저 조회
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RestApiException(ErrorCode.USER_NOT_FOUND));
 
         // 가게 조회
-        Store store = storeRepository.findById(storeId)
+        Store store = storeRepository.findById(dto.getStoreId())
                 .orElseThrow(() -> new RestApiException(ErrorCode.STORE_NOT_FOUND));
 
         // 장바구니 가져오기 (없으면 새로 생성)

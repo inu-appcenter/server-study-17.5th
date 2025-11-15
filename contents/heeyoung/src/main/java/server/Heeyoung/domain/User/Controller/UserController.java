@@ -1,5 +1,6 @@
 package server.Heeyoung.domain.User.Controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -7,8 +8,8 @@ import org.springframework.web.bind.annotation.*;
 import server.Heeyoung.domain.User.Service.UserAuthService;
 import server.Heeyoung.domain.User.dto.request.UserLoginDto;
 import server.Heeyoung.domain.User.dto.request.UserSignUpDto;
-import server.Heeyoung.domain.User.entity.User;
 import server.Heeyoung.global.jwt.JwtTokenResponseDto;
+
 
 @RestController
 @RequestMapping("/users")
@@ -18,7 +19,7 @@ public class UserController {
     private final UserAuthService userAuthService;
 
     @PostMapping("/sign-up")
-    public ResponseEntity<String> signUpUser(@RequestBody UserSignUpDto dto) {
+    public ResponseEntity<String> signUpUser(@Valid @RequestBody UserSignUpDto dto) {
         userAuthService.signUp(dto);
         return ResponseEntity.status(HttpStatus.OK).body("회원가입에 성공하였습니다.");
     }

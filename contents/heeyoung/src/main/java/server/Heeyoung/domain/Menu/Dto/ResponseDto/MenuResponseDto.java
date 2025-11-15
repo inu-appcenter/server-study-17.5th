@@ -28,7 +28,6 @@ public class MenuResponseDto {
                 .menuPicture(menu.getMenuPicture())
                 .storeId(menu.getStore().getId())
                 .build();
-
     }
 
 }

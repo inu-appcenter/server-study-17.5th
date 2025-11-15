@@ -34,7 +34,7 @@ public class User {
     private String address;
 
     @Column(nullable = false)
-    private String nickname;
+    private String nickname = "";
 
     @Column(nullable = false)
     private String name;

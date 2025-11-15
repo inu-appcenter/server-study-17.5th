@@ -38,7 +38,7 @@ public class CartService {
         Cart cart = cartRepository.findByUserIdWithMenus(userId)
                 .orElseThrow(()->new RestApiException(ErrorCode.CART_NOT_FOUND));
 
-        // cartMenuDto 리스트
+         // cartMenuDto 리스트
         List<CartMenuDto> cartMenuDtoList =  cart.getCartMenuList().stream()
                 .map(cm -> CartMenuDto.builder()
                         .menuName(cm.getMenu().getMenuName())
@@ -70,3 +70,5 @@ public class CartService {
     }
 
 }
+
+

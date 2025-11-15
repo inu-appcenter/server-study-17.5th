@@ -58,6 +58,10 @@ public class UserAuthService {
         if (userRepository.existsByLoginId(dto.getLoginId())) {
             throw new RestApiException(ErrorCode.DUPLICATED_ID);
         }
+        // 이메일 중복 검사
+        if (userRepository.existsByEmail(dto.getEmail())) {
+            throw new RestApiException(ErrorCode.DUPLICATED_EMAIL);
+        }
         else {
             User user = User.builder()
                     .loginId(dto.getLoginId())
