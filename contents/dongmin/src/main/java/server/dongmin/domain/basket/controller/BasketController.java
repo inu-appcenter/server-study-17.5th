@@ -1,5 +1,6 @@
 package server.dongmin.domain.basket.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -22,7 +23,7 @@ public class BasketController {
     @PostMapping("/items")
     public ResponseEntity<BasketItemResponse> addBasketItem(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
-            @RequestBody BasketItemRequest basketItemRequest) { // @RequestBody 추가
+            @Valid @RequestBody BasketItemRequest basketItemRequest) { // @RequestBody 추가
         BasketItemResponse response = basketService.addBasketItem(userDetails, basketItemRequest);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }

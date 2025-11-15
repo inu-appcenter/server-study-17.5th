@@ -1,5 +1,6 @@
 package server.dongmin.domain.auth.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,13 +20,14 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/signup")
-    public ResponseEntity<Void> signup(@RequestBody SignUpRequest signUpRequest){
+    public ResponseEntity<Void> signup(@Valid @RequestBody SignUpRequest signUpRequest){
         authService.signUp(signUpRequest);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @PostMapping("/login")
-    public ResponseEntity<JwtToken> login(@RequestBody LoginRequest loginRequest){
+    public ResponseEntity<JwtToken> login(@Valid @RequestBody LoginRequest loginRequest){
+        // refresh token을 Cookie에 넣어서 보내기
         return ResponseEntity.status(HttpStatus.OK).body(authService.login(loginRequest));
     }
 
@@ -36,8 +38,9 @@ public class AuthController {
     }
 
     @PostMapping("/reissue")
-    public ResponseEntity<JwtToken> reissue(@RequestHeader("Refresh-Token") String refreshToken) {
-        JwtToken newToken = authService.reissue(refreshToken);
+    public ResponseEntity<JwtToken> reissue(@AuthenticationPrincipal UserDetailsImpl userDetails,
+                                            @RequestHeader("Refresh-Token") String refreshToken) {
+        JwtToken newToken = authService.reissue(userDetails, refreshToken);
         return ResponseEntity.status(HttpStatus.OK)
                 .header("Authorization", "Bearer " + newToken.getAccessToken())
                 .header("Refresh-Token", newToken.getRefreshToken())

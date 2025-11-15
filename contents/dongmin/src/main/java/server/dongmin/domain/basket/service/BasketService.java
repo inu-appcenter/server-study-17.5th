@@ -1,6 +1,5 @@
 package server.dongmin.domain.basket.service;
 
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -17,6 +16,8 @@ import server.dongmin.domain.menu.entity.Menu;
 import server.dongmin.domain.menu.repository.MenuRepository;
 import server.dongmin.domain.user.entity.User;
 import server.dongmin.domain.user.entity.UserDetailsImpl;
+import server.dongmin.global.exception.error.CustomErrorCode;
+import server.dongmin.global.exception.error.RestApiException;
 
 import java.util.Collections;
 
@@ -34,7 +35,7 @@ public class BasketService {
 
         // 추가하려는 메뉴 정보 조회
         Menu menu = menuRepository.findById(request.menuId())
-                .orElseThrow(() -> new EntityNotFoundException("Menu not found with id: " + request.menuId()));
+                .orElseThrow(() -> new RestApiException(CustomErrorCode.MENU_NOT_FOUND));
 
         // 사용자의 장바구니 조회 또는 생성
         Basket basket = basketRepository.findByUserId(user.getUserId())
@@ -42,7 +43,7 @@ public class BasketService {
 
         // 현재 장바구니의 가게와 추가하려는 메뉴의 가게가 다른지 확인
         if (!basket.getStoreId().equals(menu.getStoreId())) {
-            throw new IllegalArgumentException("Cannot add items from different stores.");
+            throw new RestApiException(CustomErrorCode.DIFFERENT_STORE_IN_BASKET);
         }
 
         BasketItem basketItem = checkMenuInBasket(basket, menu, request);

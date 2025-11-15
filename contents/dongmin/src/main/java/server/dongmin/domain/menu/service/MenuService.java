@@ -3,6 +3,7 @@ package server.dongmin.domain.menu.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import server.dongmin.domain.menu.dto.req.MenuRequest;
@@ -12,6 +13,8 @@ import server.dongmin.domain.menu.repository.MenuRepository;
 import server.dongmin.domain.store.entity.Store;
 import server.dongmin.domain.store.repository.StoreRepository;
 import server.dongmin.domain.user.entity.UserDetailsImpl;
+import server.dongmin.global.exception.error.CustomErrorCode;
+import server.dongmin.global.exception.error.RestApiException;
 
 @Service
 @RequiredArgsConstructor
@@ -24,10 +27,10 @@ public class MenuService {
     public MenuResponse createMenu(UserDetailsImpl userDetails, Long storeId, MenuRequest menuRequest) {
 
         Store store = storeRepository.findById(storeId)
-                .orElseThrow(() -> new IllegalArgumentException("Store not found")); // TODO: Custom Error
+                .orElseThrow(() -> new RestApiException(CustomErrorCode.STORE_NOT_FOUND));
 
         if (!store.getUserId().equals((userDetails.getUser().getUserId()))){
-            throw new IllegalArgumentException("User does not have permission to create a menu"); // TODO: Custom Error
+            throw new RestApiException(CustomErrorCode.STORE_OWNER_MISMATCH);
         }
 
         Menu menu = Menu.create(storeId, menuRequest);
@@ -39,7 +42,7 @@ public class MenuService {
     public Slice<MenuResponse> getMenusByStoreId(Long storeId, Pageable pageable) {
 
         if(!storeRepository.existsById(storeId)){
-            throw new IllegalArgumentException("Store not found"); // TODO: Custom Error
+            throw new RestApiException(CustomErrorCode.STORE_NOT_FOUND);
         }
         return menuRepository.findByStoreId(storeId, pageable).map(MenuResponse::from);
     }

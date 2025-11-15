@@ -12,13 +12,13 @@ import server.dongmin.domain.store.entity.Store;
 import server.dongmin.domain.store.repository.StoreRepository;
 import server.dongmin.domain.user.entity.UserDetailsImpl;
 import server.dongmin.domain.user.enums.Role;
-import server.dongmin.domain.user.repository.UserRepository;
+import server.dongmin.global.exception.error.CustomErrorCode;
+import server.dongmin.global.exception.error.RestApiException;
 
 @Service
 @RequiredArgsConstructor
 public class StoreService {
 
-    private final UserRepository userRepository;
     private final StoreRepository storeRepository;
 
     @Transactional
@@ -29,7 +29,7 @@ public class StoreService {
             storeRepository.save(store);
             return StoreResponse.from(store);
         } else
-            throw new IllegalArgumentException("User is not a owner of this store"); // TODO: Custom exception
+            throw new RestApiException(CustomErrorCode.USER_NOT_CREATE_STORE);
 
     }
 
