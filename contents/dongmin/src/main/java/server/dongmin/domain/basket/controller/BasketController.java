@@ -16,14 +16,14 @@ import server.dongmin.domain.user.entity.UserDetailsImpl;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/baskets")
-public class BasketController {
+public class BasketController implements BasketControllerSpecification {
 
     private final BasketService basketService;
 
     @PostMapping("/items")
     public ResponseEntity<BasketItemResponse> addBasketItem(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
-            @Valid @RequestBody BasketItemRequest basketItemRequest) { // @RequestBody 추가
+            @Valid @RequestBody BasketItemRequest basketItemRequest) {
         BasketItemResponse response = basketService.addBasketItem(userDetails, basketItemRequest);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
