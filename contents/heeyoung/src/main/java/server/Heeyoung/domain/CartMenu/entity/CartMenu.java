@@ -16,7 +16,7 @@ public class CartMenu {
     @Column(name = "cartmenu_id")
     private Long id;
 
-    @Column(nullable = false)
+    @Column(name = "cart_menu_quantity", nullable = false)
     private Long cartMenuQuantity;
 
     // FK
