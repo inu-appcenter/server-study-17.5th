@@ -15,7 +15,7 @@ import server.dongmin.global.jwt.JwtToken;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/auth")
-public class AuthController {
+public class AuthController implements AuthControllerSpecification {
 
     private final AuthService authService;
 

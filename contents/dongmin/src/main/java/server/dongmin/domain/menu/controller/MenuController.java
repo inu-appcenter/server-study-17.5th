@@ -16,7 +16,7 @@ import server.dongmin.domain.user.entity.UserDetailsImpl;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/stores/{storeId}/menus")
-public class MenuController {
+public class MenuController implements MenuControllerSpecification {
 
     private final MenuService menuService;
 

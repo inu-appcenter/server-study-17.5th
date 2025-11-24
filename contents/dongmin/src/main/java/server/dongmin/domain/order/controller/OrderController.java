@@ -8,7 +8,7 @@ import server.dongmin.domain.order.service.OrderService;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/orders")
-public class OrderController {
+public class OrderController implements OrderControllerSpecification{
 
     private final OrderService orderService;
 
