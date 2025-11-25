@@ -24,8 +24,8 @@ public class Menu {
     @Column(nullable = false)
     private Long price;
 
-    @Column(nullable = false)
-    private String menuPicture = "";
+    @Column
+    private String menuPicture;
 
     // FK
     @ManyToOne(fetch = FetchType.LAZY)

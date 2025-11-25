@@ -11,7 +11,7 @@ import server.Heeyoung.domain.Menu.Service.MenuService;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/stores/{storeId}/menus")
-public class MenuController {
+public class MenuController implements MenuApiSpecification{
 
     private final MenuService menuService;
 

@@ -33,7 +33,7 @@ public class Cart {
     private List<CartMenu> cartMenuList = new ArrayList<>();
 
     @Builder
-    private Cart(Store store, User user) {
+    public Cart(Store store, User user) {
         this.store = store;
         this.user = user;
     }

@@ -14,22 +14,25 @@ import server.Heeyoung.global.jwt.JwtTokenResponseDto;
 @RestController
 @RequestMapping("/users")
 @RequiredArgsConstructor
-public class UserController {
+public class UserController implements UserApiSpecification {
 
     private final UserAuthService userAuthService;
 
+    @Override
     @PostMapping("/sign-up")
     public ResponseEntity<String> signUpUser(@Valid @RequestBody UserSignUpDto dto) {
         userAuthService.signUp(dto);
         return ResponseEntity.status(HttpStatus.OK).body("회원가입에 성공하였습니다.");
     }
 
+    @Override
     @PostMapping("/sign-in")
     public ResponseEntity<JwtTokenResponseDto> login(@RequestBody UserLoginDto dto) {
         JwtTokenResponseDto loginUserToken = userAuthService.login(dto);
         return ResponseEntity.status(HttpStatus.OK).body(loginUserToken);
     }
 
+    @Override
     @PostMapping("/reissue")
     public ResponseEntity<JwtTokenResponseDto> reissueToken(@RequestHeader("Refresh-Token") String refreshToken) {
         JwtTokenResponseDto newToken = userAuthService.reissueToken(refreshToken);

@@ -17,12 +17,13 @@ import server.Heeyoung.global.exception.RestApiException;
 @RestController
 @RequestMapping("/carts")
 @RequiredArgsConstructor
-public class CartController {
+public class CartController implements CartApiSpecification {
 
     private final CartService cartService;
     private final CartMenuService cartMenuService;
 
     // 장바구니 조회
+    @Override
     @GetMapping
     public ResponseEntity<CartResponseDto> getCart(@AuthenticationPrincipal UserDetailsImpl userDetails) {
         CartResponseDto response = cartService.findCart(userDetails.getUser().getId());
@@ -30,13 +31,15 @@ public class CartController {
     }
 
     // 장바구니 삭제
+    @Override
     @DeleteMapping
-    public ResponseEntity<String> deleteCart(@AuthenticationPrincipal UserDetailsImpl userDetails) {
+    public ResponseEntity<Void> deleteCart(@AuthenticationPrincipal UserDetailsImpl userDetails) {
         cartService.deleteCart(userDetails.getUser().getId());
         return ResponseEntity.ok().build();
     }
 
     // 장바구니에 메뉴 추가
+    @Override
     @PostMapping
     public ResponseEntity<CartMenuResponseDto> addMenuToCart(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
@@ -47,6 +50,7 @@ public class CartController {
     }
 
     // 장바구니 메뉴 수량 수정
+    @Override
     @PatchMapping("/{cartMenuId}")
     public ResponseEntity<CartMenuResponseDto> updateCartMenuQuantity(
             @PathVariable Long cartMenuId,
@@ -58,12 +62,13 @@ public class CartController {
     }
 
     // 장바구니 메뉴 삭제
+    @Override
     @DeleteMapping("/{cartMenuId}")
-    public ResponseEntity<String> deleteCartMenu(
+    public ResponseEntity<Void> deleteCartMenu(
             @PathVariable Long cartMenuId,
             @AuthenticationPrincipal UserDetailsImpl userDetails
     ) {
         cartMenuService.deleteCartMenu(userDetails.getUser().getId(), cartMenuId);
-        return ResponseEntity.status(HttpStatus.OK).body("장바구니 메뉴가 삭제되었습니다.");
+        return ResponseEntity.ok().build();
     }
 }
